@@ -1,10 +1,14 @@
-﻿using Abp.Domain.Entities;
+﻿using Abp.AutoMapper;
+using Eoss.Backend.Entities;
+using Eoss.Backend.Onvif.Ptz.Dto;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Eoss.Backend.Entities
+namespace Eoss.Backend.Onvif.Media.Dto
 {
-    public class Profile : Entity<int>
+    [AutoMapFrom(typeof(Profile))]
+    public class ProfileDto
     {
         [DisplayName("Profile name")]
         [Required, StringLength(BackendConsts.MaxNameLength, MinimumLength = BackendConsts.MinNameLength)]
@@ -51,6 +55,6 @@ namespace Eoss.Backend.Entities
         public int AudioSampleRate { get; set; }
 
         [DisplayName("PTZ parameters")]
-        public PtzParams PtzParams { get; set; } = new PtzParams();
+        public PtzParamsDto PtzParams { get; set; }
     }
 }

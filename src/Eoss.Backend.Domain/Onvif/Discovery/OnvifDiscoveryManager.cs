@@ -13,9 +13,9 @@ namespace Eoss.Backend.Domain.Onvif.Discovery
             OnvifDiscovery = new OnvifDiscovery.Discovery();
         }
 
-        public Task<List<DiscoveredDevice>> DiscoveryDeviceAsync()
+        public async Task<List<DiscoveredDevice>> DiscoveryDeviceAsync()
         {
-            return DoDiscoveryDeviceAsync();
+            return await DoDiscoveryDeviceAsync();
         }
 
         private static async Task<List<DiscoveredDevice>> DoDiscoveryDeviceAsync()

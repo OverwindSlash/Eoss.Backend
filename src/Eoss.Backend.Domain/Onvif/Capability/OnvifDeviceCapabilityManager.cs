@@ -9,10 +9,10 @@ namespace Eoss.Backend.Domain.Onvif.Capability
     {
         public async Task<Capabilities> GetCapabilitiesAsync(string host, string username, string password)
         {
-            return await DoGetCapabilities(host, username, password);
+            return await DoGetCapabilitiesAsync(host, username, password);
         }
 
-        private static async Task<Capabilities> DoGetCapabilities(string host, string username, string password)
+        private static async Task<Capabilities> DoGetCapabilitiesAsync(string host, string username, string password)
         {
             var device = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
             var response = await device.GetCapabilitiesAsync(new CapabilityCategory[] { CapabilityCategory.All });
