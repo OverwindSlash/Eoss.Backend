@@ -254,3 +254,4 @@ paket-files/
 src/Eoss.Backend.Web.Mvc/secrets.json
 src/Eoss.Backend.Web.Host/secrets.json
 src/Eoss.Backend.Migrator/secrets.json
+/src/Eoss.Backend.Web.Host/App_Data/Logs/Logs.txt
