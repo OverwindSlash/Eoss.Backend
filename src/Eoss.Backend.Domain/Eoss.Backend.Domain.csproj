@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Abp" Version="9.0.0" />
+    <PackageReference Include="Mictlanix.DotNet.OnvifClient" Version="0.0.3" />
     <PackageReference Include="OnvifDiscovery" Version="2.0.0" />
   </ItemGroup>
 
