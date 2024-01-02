@@ -6,9 +6,9 @@ namespace Eoss.Backend.Domain.Onvif.Capability
 {
     public class OnvifDeviceCapabilityManager : DomainService, IOnvifDeviceCapabilityManager
     {
-        public Task<DeviceCapabilities> GetCapabilitiesAsync(string host, string username, string password)
+        public async Task<DeviceCapabilities> GetCapabilitiesAsync(string host, string username, string password)
         {
-            throw new NotImplementedException();
+            return await DoGetCapabilities(host, username, password);
         }
 
         private static async Task<DeviceCapabilities> DoGetCapabilities(string host, string username, string password)
