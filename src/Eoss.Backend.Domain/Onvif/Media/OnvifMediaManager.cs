@@ -49,6 +49,10 @@ namespace Eoss.Backend.Domain.Onvif.Media
                     profile.VideoHeight = videoEncoderConfig.Resolution != null 
                         ? videoEncoderConfig.Resolution.Height 
                         : 0;
+
+                    profile.FrameRate = videoEncoderConfig.RateControl != null
+                        ? videoEncoderConfig.RateControl.FrameRateLimit
+                        : 0;
                 }
 
                 // VideoStream

@@ -30,6 +30,10 @@ namespace Eoss.Backend.Entities
         [Required, Range(1, int.MaxValue)]
         public int VideoHeight { get; set; }
 
+        [DisplayName("Frame rate")]
+        [Range(0, float.MaxValue)]
+        public float FrameRate { get; set; }
+
         [DisplayName("Video Stream Uri")]
         [Required]
         public string StreamUri { get; set; }

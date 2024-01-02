@@ -36,7 +36,7 @@ namespace Eoss.Backend.Onvif.Media
                     StreamUri = profile.StreamUri,
                     VideoWidth = profile.VideoWidth,
                     VideoHeight = profile.VideoHeight,
-                    Framerate = 0
+                    Framerate = profile.FrameRate
                 };
 
                 videoSourceDtos.Add(videoSourceDto);
