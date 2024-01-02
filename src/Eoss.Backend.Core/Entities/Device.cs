@@ -34,18 +34,18 @@ namespace Eoss.Backend.Entities
         [DisplayName("Device Capabilities")]
         public List<string> Capabilities { get; set; }
 
-        [DisplayName("Device Installation Parameters")]
-        public InstallationParams InstallationParams { get; set; }
-
         [DisplayName("Device Profiles")]
         public List<Profile> Profiles { get; set; }
+
+        [DisplayName("Device Installation Parameters")]
+        public InstallationParams InstallationParams { get; set; }
 
         [DisplayName("Device Group")]
         public Group Group { get; set; }
 
         public Device()
         {
-            var suffix = Guid.NewGuid().ToString().Substring(0, 6);
+            var suffix = Guid.NewGuid().ToString().Substring(0, 8);
 
             DeviceId = $"Cam-{suffix}";
             Name = "Unknown";
@@ -54,8 +54,8 @@ namespace Eoss.Backend.Entities
             Manufacturer = "Unknown";
             Types = new List<string>();
             Capabilities = new List<string>();
-            InstallationParams = new InstallationParams();
             Profiles = new List<Profile>();
+            InstallationParams = new InstallationParams();
         }
     }
 }

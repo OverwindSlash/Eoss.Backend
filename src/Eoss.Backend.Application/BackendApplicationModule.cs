@@ -2,11 +2,13 @@
 using Abp.Modules;
 using Abp.Reflection.Extensions;
 using Eoss.Backend.Authorization;
+using Eoss.Backend.Domain;
 
 namespace Eoss.Backend
 {
     [DependsOn(
-        typeof(BackendCoreModule), 
+        typeof(BackendCoreModule),
+        typeof(BackendDomainModule),
         typeof(AbpAutoMapperModule))]
     public class BackendApplicationModule : AbpModule
     {

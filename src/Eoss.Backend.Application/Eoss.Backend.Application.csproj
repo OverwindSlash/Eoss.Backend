@@ -11,7 +11,14 @@
     <RootNamespace>Eoss.Backend</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Eoss.Backend.Core\Eoss.Backend.Core.csproj" />
+    <ProjectReference Include="..\Eoss.Backend.Domain\Eoss.Backend.Domain.csproj" />
   </ItemGroup>
 </Project>

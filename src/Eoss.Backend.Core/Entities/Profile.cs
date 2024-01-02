@@ -30,6 +30,10 @@ namespace Eoss.Backend.Entities
         [Required, Range(1, int.MaxValue)]
         public int VideoHeight { get; set; }
 
+        [DisplayName("Video Stream Uri")]
+        [Required]
+        public string StreamUri { get; set; }
+
         [DisplayName("Audio source token")]
         [Required, StringLength(BackendConsts.MaxStringIdLength, MinimumLength = BackendConsts.MinStringIdLength)]
         public string AudioSourceToken { get; set; }
