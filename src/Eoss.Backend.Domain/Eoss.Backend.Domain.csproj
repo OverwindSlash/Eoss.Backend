@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Eoss.Backend.Core\Eoss.Backend.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Onvif\Media\" />
+  </ItemGroup>
+
 </Project>

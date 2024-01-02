@@ -6,6 +6,6 @@ namespace Eoss.Backend.Onvif.Capability
 {
     public interface IOnvifDeviceCapabilitiesAppService : IApplicationService
     {
-        Task<DeviceCapabilitiesDto> GetCapabilitiesAsync(string host, string username, string password);
+        Task<CapabilitiesDto> GetCapabilitiesAsync(string host, string username, string password);
     }
 }

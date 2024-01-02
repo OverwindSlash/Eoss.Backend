@@ -14,10 +14,10 @@ namespace Eoss.Backend.Onvif.Capability
             _capabilityManager = capabilityManager;
         }
 
-        public async Task<DeviceCapabilitiesDto> GetCapabilitiesAsync(string host, string username, string password)
+        public async Task<CapabilitiesDto> GetCapabilitiesAsync(string host, string username, string password)
         {
             var capabilities = await _capabilityManager.GetCapabilitiesAsync(host, username, password);
-            return ObjectMapper.Map<DeviceCapabilitiesDto>(capabilities);
+            return ObjectMapper.Map<CapabilitiesDto>(capabilities);
         }
     }
 }
