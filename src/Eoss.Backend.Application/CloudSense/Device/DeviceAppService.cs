@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services;
 using Abp.Domain.Repositories;
+using Abp.UI;
 using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using System.Collections.Generic;
@@ -11,12 +12,15 @@ namespace Eoss.Backend.CloudSense.Device
     {
         private readonly IOnvifDiscoveryManager _discoveryManager;
         private readonly IRepository<Entities.Device> _deviceRepository;
+        private readonly IRepository<Entities.Group> _groupRepository;
 
         public DeviceAppService(IOnvifDiscoveryManager discoveryManager,
-            IRepository<Entities.Device> deviceRepository)
+            IRepository<Entities.Device> deviceRepository,
+            IRepository<Entities.Group> groupRepository)
         {
             _discoveryManager = discoveryManager;
             _deviceRepository = deviceRepository;
+            _groupRepository = groupRepository;
         }
 
         public async Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync()
@@ -52,6 +56,24 @@ namespace Eoss.Backend.CloudSense.Device
             }
 
             return deviceDtos;
+        }
+
+        public async Task SetDeviceGroup(string deviceId, int groupId)
+        {
+            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            var group = await _groupRepository.FirstOrDefaultAsync(g => g.Id == groupId);
+            if (group == null)
+            {
+                throw new UserFriendlyException(L("GroupIdNotExist", groupId));
+            }
+
+            device.Group = group;
+            await _deviceRepository.UpdateAsync(device);
         }
     }
 }

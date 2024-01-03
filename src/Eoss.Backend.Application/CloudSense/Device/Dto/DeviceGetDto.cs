@@ -1,5 +1,5 @@
-﻿using Abp.AutoMapper;
-using Abp.Domain.Entities;
+﻿using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using Eoss.Backend.CloudSense.Group.Dto;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Eoss.Backend.CloudSense.Device.Dto
 {
     [AutoMapFrom(typeof(Entities.Device))]
-    public class DeviceGetDto : Entity<int>
+    public class DeviceGetDto : EntityDto<int>
     {
         [DisplayName("Device Id")]
         [Required, StringLength(BackendConsts.MaxStringIdLength, MinimumLength = BackendConsts.MinStringIdLength)]

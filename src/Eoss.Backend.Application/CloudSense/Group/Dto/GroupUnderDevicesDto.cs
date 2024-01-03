@@ -1,11 +1,11 @@
-﻿using Abp.AutoMapper;
-using Abp.Domain.Entities;
+﻿using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eoss.Backend.CloudSense.Group.Dto
 {
     [AutoMapFrom(typeof(Entities.Group))]
-    public class GroupUnderDevicesDto : Entity<int>
+    public class GroupUnderDevicesDto : EntityDto<int>
     {
         [Required, StringLength(BackendConsts.MaxNameLength, MinimumLength = BackendConsts.MinNameLength)]
         public string Name { get; set; }

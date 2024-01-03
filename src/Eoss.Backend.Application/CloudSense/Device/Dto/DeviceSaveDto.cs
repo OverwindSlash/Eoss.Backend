@@ -1,12 +1,12 @@
-﻿using Abp.AutoMapper;
-using Abp.Domain.Entities;
+﻿using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eoss.Backend.CloudSense.Device.Dto
 {
     [AutoMapTo(typeof(Entities.Device))]
-    public class DeviceSaveDto : Entity<int>
+    public class DeviceSaveDto : EntityDto<int>
     {
         [DisplayName("Device Id")]
         [Required, StringLength(BackendConsts.MaxStringIdLength, MinimumLength = BackendConsts.MinStringIdLength)]
