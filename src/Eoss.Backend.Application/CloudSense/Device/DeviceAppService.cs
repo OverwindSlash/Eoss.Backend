@@ -1,9 +1,9 @@
 ﻿using Abp.Application.Services;
+using Abp.Domain.Repositories;
 using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Abp.Domain.Repositories;
 
 namespace Eoss.Backend.CloudSense.Device
 {
@@ -21,8 +21,9 @@ namespace Eoss.Backend.CloudSense.Device
 
         public async Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync()
         {
-            var discoveredDevices = await _discoveryManager.DiscoveryDeviceAsync();
+            List<DeviceGetDto> deviceDtos = new List<DeviceGetDto>();
 
+            var discoveredDevices = await _discoveryManager.DiscoveryDeviceAsync();
             foreach (var discoveredDevice in discoveredDevices)
             {
                 var device = await _deviceRepository.FirstOrDefaultAsync(
@@ -38,19 +39,19 @@ namespace Eoss.Backend.CloudSense.Device
                     } while (existanceCheckResult != null);
                 }
 
-                device = new Entities.Device()
-                {
-                    Name = discoveredDevice.Name,
-                    Ipv4Address = discoveredDevice.Ipv4Address,
-                    Model = discoveredDevice.Model,
-                    Manufacturer = discoveredDevice.Manufacturer,
-                    Types = discoveredDevice.Types
-                };
+                device.Name = discoveredDevice.Name;
+                device.Ipv4Address = discoveredDevice.Ipv4Address;
+                device.Model = discoveredDevice.Model;
+                device.Manufacturer = discoveredDevice.Manufacturer;
+                device.Types = discoveredDevice.Types;
 
                 await _deviceRepository.InsertOrUpdateAsync(device);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                deviceDtos.Add(ObjectMapper.Map<DeviceGetDto>(device));
             }
 
-            return ObjectMapper.Map<List<DeviceGetDto>>(discoveredDevices);
+            return deviceDtos;
         }
     }
 }
