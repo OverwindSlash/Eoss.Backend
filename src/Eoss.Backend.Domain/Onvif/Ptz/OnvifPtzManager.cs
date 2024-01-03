@@ -1,6 +1,8 @@
 ﻿using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 using Mictlanix.DotNet.Onvif;
+using Mictlanix.DotNet.Onvif.Common;
+using Mictlanix.DotNet.Onvif.Ptz;
 
 namespace Eoss.Backend.Domain.Onvif.Ptz
 {
@@ -14,6 +16,95 @@ namespace Eoss.Backend.Domain.Onvif.Ptz
         public async Task<PtzStatus> GetStatusAsync(string host, string username, string password, string profileToken)
         {
             return await DoGetStatusAsync(host, username, password, profileToken);
+        }
+
+        public async Task<PtzStatus> AbsoluteMoveAsync(string host, string username, string password, string profileToken, 
+            float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptz.AbsoluteMoveAsync(profileToken, new PTZVector
+            {
+                PanTilt = new Vector2D
+                {
+                    x = pan,
+                    y = tilt
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoom
+                }
+            }, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+            });
+
+            return await GetStoppedPositionAsync(profileToken, ptz);
+        }
+
+        public async Task<PtzStatus> RelativeMoveAsync(string host, string username, string password, string profileToken, float pan, float tilt,
+            float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptz.RelativeMoveAsync(profileToken, new PTZVector
+            {
+                PanTilt = new Vector2D
+                {
+                    x = pan,
+                    y = tilt
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoom
+                }
+            }, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+            });
+
+            return await GetStoppedPositionAsync(profileToken, ptz);
+        }
+
+        public async Task ContinuousMoveAsync(string host, string username, string password, string profileToken, float panSpeed,
+            float tiltSpeed, float zoomSpeed)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptz.ContinuousMoveAsync(profileToken, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+
+            }, null);
+        }
+
+        public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptz.StopAsync(profileToken, stopPan, stopZoom);
+
+            return await GetStoppedPositionAsync(profileToken, ptz);
         }
 
         private static async Task<List<PtzConfig>> DoGetPtzConfigAsync(string host, string username, string password)
@@ -112,6 +203,42 @@ namespace Eoss.Backend.Domain.Onvif.Ptz
             };
 
             return ptzStatus;
+        }
+
+        private static async Task<PtzStatus> GetStoppedPositionAsync(string profileToken, PTZClient ptz)
+        {
+            try
+            {
+                while (true)
+                {
+                    var response = await ptz.GetStatusAsync(profileToken);
+                    if ((response.MoveStatus.PanTilt != MoveStatus.IDLE) || (response.MoveStatus.Zoom != MoveStatus.IDLE))
+                    {
+                        continue;
+                    }
+
+                    var status = new PtzStatus()
+                    {
+                        PanPosition = response.Position.PanTilt.x,
+                        TiltPosition = response.Position.PanTilt.y,
+                        ZoomPosition = response.Position.Zoom.x,
+                        PanTiltStatus = response.MoveStatus.PanTilt.ToString(),
+                        ZoomStatus = response.MoveStatus.Zoom.ToString(),
+
+                        PanTiltSpace = response.Position.PanTilt.space,
+                        ZoomSpace = response.Position.Zoom.space,
+
+                        UtcDateTime = response.UtcTime,
+                        Error = response.Error
+                    };
+
+                    return status;
+                }
+            }
+            catch (Exception e)
+            {
+                return new PtzStatus();
+            }
         }
     }
 }

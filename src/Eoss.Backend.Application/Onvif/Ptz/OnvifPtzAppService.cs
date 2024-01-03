@@ -23,9 +23,38 @@ namespace Eoss.Backend.Onvif.Ptz
             return ObjectMapper.Map<List<PtzConfigDto>>(ptzConfigs);
         }
 
+        [HttpGet]
         public async Task<PtzStatusDto> GetStatusAsync(string host, string username, string password, string profileToken)
         {
             var ptzStatus = await _ptzManager.GetStatusAsync(host,username,password,profileToken);
+            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+        }
+
+        public async Task<PtzStatusDto> AbsoluteMoveAsync(string host, string username, string password, string profileToken,
+            float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzStatus = await _ptzManager.AbsoluteMoveAsync(host, username, password, profileToken, pan, tilt, zoom, 
+                panSpeed, tiltSpeed, zoomSpeed);
+            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+        }
+
+        public async Task<PtzStatusDto> RelativeMoveAsync(string host, string username, string password, string profileToken, 
+            float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzStatus = await _ptzManager.RelativeMoveAsync(host, username, password, profileToken, pan, tilt, zoom,
+                panSpeed, tiltSpeed, zoomSpeed);
+            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+        }
+
+        public async Task ContinuousMoveAsync(string host, string username, string password, string profileToken, 
+            float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            await _ptzManager.ContinuousMoveAsync(host, username, password, profileToken, panSpeed, tiltSpeed, zoomSpeed);
+        }
+
+        public async Task<PtzStatusDto> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
+        {
+            var ptzStatus = await _ptzManager.StopAsync(host, username, password, profileToken, stopPan, stopZoom);
             return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
         }
     }
