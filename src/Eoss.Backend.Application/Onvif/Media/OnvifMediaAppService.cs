@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Abp.Application.Services;
 using Eoss.Backend.Domain.Onvif.Media;
 using Eoss.Backend.Onvif.Media.Dto;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eoss.Backend.Onvif.Media
 {
@@ -16,12 +17,14 @@ namespace Eoss.Backend.Onvif.Media
             _mediaManager = mediaManager;
         }
 
+        [HttpGet]
         public async Task<List<ProfileDto>> GetProfilesAsync(string host, string username, string password)
         {
             var profiles = await _mediaManager.GetProfilesAsync(host, username, password);
             return ObjectMapper.Map<List<ProfileDto>>(profiles);
         }
 
+        [HttpGet]
         public async Task<List<VideoSourceDto>> GetVideoSourcesAsync(string host, string username, string password, string profileToken)
         {
             List<VideoSourceDto> videoSourceDtos = new();

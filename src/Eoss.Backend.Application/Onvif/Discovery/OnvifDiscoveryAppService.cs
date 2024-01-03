@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using Eoss.Backend.Onvif.Discovery.Dto;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace Eoss.Backend.Onvif.Discovery
             _discoveryManager = discoveryManager;
         }
 
+        [HttpGet]
         public async Task<List<DiscoveredDeviceDto>> DiscoveryDeviceAsync()
         {
             var discoveryDeviceDtos = await _discoveryManager.DiscoveryDeviceAsync();
