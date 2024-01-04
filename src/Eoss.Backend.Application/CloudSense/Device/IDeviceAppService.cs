@@ -17,6 +17,6 @@ namespace Eoss.Backend.CloudSense.Device
 
         Task SetDeviceCredential(DeviceCredentialDto input);
 
-        Task<CapabilitiesDto> GetCapabilities(string deviceId);
+        Task<CapabilitiesGetDto> GetCapabilities(string deviceId);
     }
 }

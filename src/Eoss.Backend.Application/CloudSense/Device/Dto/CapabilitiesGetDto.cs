@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace Eoss.Backend.CloudSense.Device.Dto
 {
     [AutoMapFrom(typeof(Capabilities))]
-    public class CapabilitiesDto : EntityDto<int>
+    public class CapabilitiesGetDto : EntityDto<int>
     {
         [DisplayName("Analytics Address")]
         public string AnalyticsXAddress { get; set; } = string.Empty;

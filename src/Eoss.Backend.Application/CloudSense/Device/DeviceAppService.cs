@@ -119,7 +119,7 @@ namespace Eoss.Backend.CloudSense.Device
             await _deviceManager.SetCredentialAsync(credential);
         }
 
-        public async Task<CapabilitiesDto> GetCapabilities(string deviceId)
+        public async Task<CapabilitiesGetDto> GetCapabilities(string deviceId)
         {
             CheckGetPermission();
 
@@ -139,7 +139,7 @@ namespace Eoss.Backend.CloudSense.Device
             device.SetCapabilities(capabilities);
             await _deviceRepository.UpdateAsync(device);
 
-            var capabilitiesDto = ObjectMapper.Map<CapabilitiesDto>(capabilities);
+            var capabilitiesDto = ObjectMapper.Map<CapabilitiesGetDto>(capabilities);
             return capabilitiesDto;
         }
 
