@@ -2,6 +2,7 @@
 using Abp.Dependency;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Eoss.Backend.Web.Host.Startup
 {
@@ -18,6 +19,11 @@ namespace Eoss.Backend.Web.Host.Startup
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-                .UseCastleWindsor(IocManager.Instance.IocContainer);
+                .UseCastleWindsor(IocManager.Instance.IocContainer)
+                .ConfigureLogging(log =>
+                {
+                    log.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+                    log.AddFilter("Microsoft.EntityFrameworkCore.Infrastructure", LogLevel.Warning);
+                });
     }
 }

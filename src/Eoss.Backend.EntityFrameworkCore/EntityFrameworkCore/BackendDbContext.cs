@@ -11,7 +11,9 @@ namespace Eoss.Backend.EntityFrameworkCore
     {
         /* Define a DbSet for each entity of the application */
         public DbSet<Device> Devices { get; set; }
-        
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
+
         public BackendDbContext(DbContextOptions<BackendDbContext> options)
             : base(options)
         {

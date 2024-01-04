@@ -32,18 +32,5 @@ namespace Eoss.Backend.CloudSense.Device.Dto
         [DisplayName("Yaw")]
         [Required, Range(-180.0, 180.0)]
         public double Yaw { get; set; }
-
-        // 相机0位的状态: 逆时针为正
-        [DisplayName("Angle To X Axis")]
-        [Required, Range(-180.0, 180.0), DefaultValue(90.0)]
-        public double AngleToXAxis { get; set; }
-
-        [DisplayName("Angle To Y Axis")]
-        [Required, Range(-180.0, 180.0), DefaultValue(90.0)]
-        public double AngleToYAxis { get; set; }
-
-        [DisplayName("Angle To Z Axis")]
-        [Required, Range(-180.0, 180.0), DefaultValue(0.0)]
-        public double AngleToZAxis { get; set; }
     }
 }
