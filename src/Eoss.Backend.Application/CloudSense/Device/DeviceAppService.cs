@@ -83,7 +83,7 @@ namespace Eoss.Backend.CloudSense.Device
             return MapToEntityDto(device);
         }
 
-        public async Task SetDeviceGroup(string deviceId, int groupId)
+        public async Task SetDeviceGroupAsync(string deviceId, int groupId)
         {
             CheckUpdatePermission();
 
@@ -103,7 +103,7 @@ namespace Eoss.Backend.CloudSense.Device
             await _deviceRepository.UpdateAsync(device);
         }
 
-        public async Task SetDeviceCredential(DeviceCredentialDto input)
+        public async Task SetDeviceCredentialAsync(DeviceCredentialDto input)
         {
             CheckUpdatePermission();
 
@@ -119,7 +119,7 @@ namespace Eoss.Backend.CloudSense.Device
             await _deviceManager.SetCredentialAsync(credential);
         }
 
-        public async Task<CapabilitiesGetDto> GetCapabilities(string deviceId)
+        public async Task<CapabilitiesGetDto> GetCapabilitiesAsync(string deviceId)
         {
             CheckGetPermission();
 
@@ -141,6 +141,33 @@ namespace Eoss.Backend.CloudSense.Device
 
             var capabilitiesDto = ObjectMapper.Map<CapabilitiesGetDto>(capabilities);
             return capabilitiesDto;
+        }
+
+        public async Task SetInstallationParamsAsync(InstallationParamsDto input)
+        {
+            var installationParams = ObjectMapper.Map<InstallationParams>(input);
+
+            var device = await _deviceRepository.FirstOrDefaultAsync(device => device.DeviceId == input.DeviceId);
+            device.InstallationParams = installationParams;
+
+            await _deviceRepository.UpdateAsync(device);
+        }
+
+        public async Task<InstallationParamsDto> GetInstallationParamsAsync(string deviceId)
+        {
+            var device = await _deviceRepository.GetAll()
+                .Include(device => device.InstallationParams)
+                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            var installationParamsDto = ObjectMapper.Map<InstallationParamsDto>(device.InstallationParams);
+            installationParamsDto.DeviceId = deviceId;
+
+            return installationParamsDto;
         }
 
         protected override async Task<Entities.Device> GetEntityByIdAsync(int id)

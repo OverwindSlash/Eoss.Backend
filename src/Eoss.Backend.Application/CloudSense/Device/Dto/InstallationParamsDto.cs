@@ -32,5 +32,9 @@ namespace Eoss.Backend.CloudSense.Device.Dto
         [DisplayName("Yaw")]
         [Required, Range(-180.0, 180.0)]
         public double Yaw { get; set; }
+
+        [DisplayName("Device Id")]
+        [Required]
+        public string DeviceId { get; set; }
     }
 }

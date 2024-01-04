@@ -13,10 +13,14 @@ namespace Eoss.Backend.CloudSense.Device
 
         Task<DeviceGetDto> GetByDeviceIdAsync(string deviceId);
 
-        Task SetDeviceGroup(string deviceId, int groupId);
+        Task SetDeviceGroupAsync(string deviceId, int groupId);
 
-        Task SetDeviceCredential(DeviceCredentialDto input);
+        Task SetDeviceCredentialAsync(DeviceCredentialDto input);
 
-        Task<CapabilitiesGetDto> GetCapabilities(string deviceId);
+        Task<CapabilitiesGetDto> GetCapabilitiesAsync(string deviceId);
+
+        Task SetInstallationParamsAsync(InstallationParamsDto input);
+        Task<InstallationParamsDto> GetInstallationParamsAsync(string deviceId);
+
     }
 }

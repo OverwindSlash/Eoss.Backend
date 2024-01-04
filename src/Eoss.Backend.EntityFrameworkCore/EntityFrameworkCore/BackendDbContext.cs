@@ -13,6 +13,7 @@ namespace Eoss.Backend.EntityFrameworkCore
         public DbSet<Device> Devices { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Credential> Credentials { get; set; }
+        public DbSet<InstallationParams> InstallationParams { get; set; }
 
         public BackendDbContext(DbContextOptions<BackendDbContext> options)
             : base(options)
