@@ -11,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace Eoss.Backend.CloudSense.Group
 {
-    public class GroupAppService : AsyncCrudAppService<
-        Entities.Group, GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>, IGroupAppService
+    public class GroupAppService : 
+        AsyncCrudAppService<Entities.Group, GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>,
+        IGroupAppService
     {
         private readonly IRepository<Entities.Group> _groupRepository;
         private readonly IRepository<Entities.Device> _deviceRepository;

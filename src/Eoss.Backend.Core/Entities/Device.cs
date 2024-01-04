@@ -57,5 +57,40 @@ namespace Eoss.Backend.Entities
             Profiles = new List<Profile>();
             InstallationParams = new InstallationParams();
         }
+
+        public void SetCapabilities(Capabilities capabilities)
+        {
+            Capabilities.Clear();
+
+            if (!string.IsNullOrEmpty(capabilities.AnalyticsXAddress))
+            {
+                Capabilities.Add("Analytics");
+            }
+
+            if (!string.IsNullOrEmpty(capabilities.DeviceXAddress))
+            {
+                Capabilities.Add("Device");
+            }
+
+            if (!string.IsNullOrEmpty(capabilities.EventXAddress))
+            {
+                Capabilities.Add("Event");
+            }
+
+            if (!string.IsNullOrEmpty(capabilities.ImagingXAddress))
+            {
+                Capabilities.Add("Imaging");
+            }
+
+            if (!string.IsNullOrEmpty(capabilities.MediaXAddress))
+            {
+                Capabilities.Add("Media");
+            }
+
+            if (!string.IsNullOrEmpty(capabilities.PtzXAddress))
+            {
+                Capabilities.Add("PTZ");
+            }
+        }
     }
 }

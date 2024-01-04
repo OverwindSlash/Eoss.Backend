@@ -13,5 +13,7 @@ namespace Eoss.Backend.Entities
         [DisplayName("Password")]
         [Required]
         public string Password { get; set; }
+
+        public Device Device { get; set; }
     }
 }

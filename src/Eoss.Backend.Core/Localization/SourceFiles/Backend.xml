@@ -119,5 +119,6 @@
     <text name="UsersActivation">Users activation</text>
     <text name="DeviceIdNotExist">Device Id {0} not exist.</text>
     <text name="GroupIdNotExist">Group Id {0} not exist.</text>
+    <text name="DeviceCredentialNotSet">Credential of device {0} not set yet.</text>
   </texts>
 </localizationDictionary>

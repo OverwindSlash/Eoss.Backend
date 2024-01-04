@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Eoss.Backend.CloudSense.Group
 {
-    public interface IGroupAppService : IAsyncCrudAppService<
-        GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>
+    public interface IGroupAppService : 
+        IAsyncCrudAppService<GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>
     {
         Task<List<DeviceUnderGroupDto>> GetAllDevicesInGroupAsync(EntityDto<int> group);
     }
