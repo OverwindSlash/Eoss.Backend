@@ -34,8 +34,5 @@ namespace Eoss.Backend.CloudSense.Device.Dto
 
         [DisplayName("Device Capabilities")]
         public List<string> Capabilities { get; set; }
-
-        [DisplayName("Device Profiles")]
-        public List<ProfileGetDto> Profiles { get; set; }
     }
 }
