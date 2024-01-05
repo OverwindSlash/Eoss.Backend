@@ -1,12 +1,12 @@
 ﻿using Abp.AutoMapper;
 using Eoss.Backend.Entities;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 namespace Eoss.Backend.Onvif.Ptz.Dto
 {
     [AutoMapFrom(typeof(PtzParams))]
-    public class PtzParamsDto
+    public class PtzParamsGetDto
     {
         // Home position
         [DisplayName("Home Pan To North")]
@@ -46,6 +46,18 @@ namespace Eoss.Backend.Onvif.Ptz.Dto
         [Range(0.0, float.MaxValue)]
         public float FocalLength { get; set; }     // 1倍焦距
 
+        [DisplayName("Sensor Width")]
+        [Range(0.0, float.MaxValue)]
+        public float SensorWidth { get; set; }
+
+        [DisplayName("Sensor Height")]
+        [Range(0.0, float.MaxValue)]
+        public float SensorHeight { get; set; }
+
+        public float PanDegreeRange => MaxPanDegree - MinPanDegree;
+        public float TiltDegreeRange => MaxTiltDegree - MinTiltDegree;
+        public float ZoomLevelRange => MaxZoomLevel - MinZoomLevel;
+
         // Onvif limit
         [DisplayName("Normalized Minimum Pan Limit")]
         [Range(-1, 0), DefaultValue(-1)]
@@ -70,5 +82,14 @@ namespace Eoss.Backend.Onvif.Ptz.Dto
         [DisplayName("Normalized Maximum Zoom Limit")]
         [Range(0, 1), DefaultValue(1)]
         public float MaxZoomNormal { get; set; }
+
+        public float PanNormalRange => MaxPanNormal - MinPanNormal;
+        public float TiltNormalRange => MaxTiltNormal - MinTiltNormal;
+        public float ZoomNormalRange => MaxZoomNormal - MinZoomNormal;
+
+        // For calculation
+        public float PanDegreePerNormal => PanDegreeRange / PanNormalRange;
+        public float TiltDegreePerNormal => TiltDegreeRange / TiltNormalRange;
+        public float ZoomLevelPerNormal => ZoomLevelRange / ZoomNormalRange;
     }
 }

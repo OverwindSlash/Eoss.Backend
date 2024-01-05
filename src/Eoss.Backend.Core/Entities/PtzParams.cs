@@ -45,6 +45,14 @@ namespace Eoss.Backend.Entities
         [Range(0.0, float.MaxValue)]
         public float FocalLength { get; set; }     // 1倍焦距
 
+        [DisplayName("Sensor Width")]
+        [Range(0.0, float.MaxValue)]
+        public float SensorWidth { get; set; }
+
+        [DisplayName("Sensor Height")]
+        [Range(0.0, float.MaxValue)]
+        public float SensorHeight { get; set; }
+
         public float PanDegreeRange => MaxPanDegree - MinPanDegree;
         public float TiltDegreeRange => MaxTiltDegree - MinTiltDegree;
         public float ZoomLevelRange => MaxZoomLevel - MinZoomLevel;

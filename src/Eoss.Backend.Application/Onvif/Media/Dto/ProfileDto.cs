@@ -59,6 +59,6 @@ namespace Eoss.Backend.Onvif.Media.Dto
         public int AudioSampleRate { get; set; }
 
         [DisplayName("PTZ parameters")]
-        public PtzParamsDto PtzParams { get; set; }
+        public PtzParamsGetDto PtzParams { get; set; }
     }
 }

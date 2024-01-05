@@ -30,5 +30,15 @@ namespace Eoss.Backend.Entities
         [DisplayName("Yaw")]
         [Required, Range(-180.0, 180.0)]
         public double Yaw { get; set; }
+
+        public void CopyFrom(InstallationParams othrer)
+        {
+            Longitude = othrer.Longitude;
+            Latitude = othrer.Latitude;
+            Altitude = othrer.Altitude;
+            Roll = othrer.Roll;
+            Pitch = othrer.Pitch;
+            Yaw = othrer.Yaw;
+        }
     }
 }

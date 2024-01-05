@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Eoss.Backend.CloudSense.Device.Dto;
+using Eoss.Backend.Onvif.Ptz.Dto;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,6 +22,11 @@ namespace Eoss.Backend.CloudSense.Device
 
         Task SetInstallationParamsAsync(InstallationParamsDto input);
         Task<InstallationParamsDto> GetInstallationParamsAsync(string deviceId);
+
+        Task<List<ProfileGetDto>> GetProfilesAsync(string deviceId, bool forceRefresh);
+
+        Task SetPtzParamsAsync(string deviceId, string profileToken, PtzParamsSaveDto input);
+        Task<PtzParamsGetDto> GetPtzParamsAsync(string deviceId, string profileToken);
 
     }
 }

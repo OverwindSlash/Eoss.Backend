@@ -1,4 +1,5 @@
-﻿using Abp.Application.Services;
+﻿using System;
+using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.UI;
@@ -6,7 +7,9 @@ using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.Domain.CloudSense.Device;
 using Eoss.Backend.Domain.Onvif.Capability;
 using Eoss.Backend.Domain.Onvif.Discovery;
+using Eoss.Backend.Domain.Onvif.Media;
 using Eoss.Backend.Entities;
+using Eoss.Backend.Onvif.Ptz.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -25,18 +28,21 @@ namespace Eoss.Backend.CloudSense.Device
         private readonly IRepository<Entities.Group> _groupRepository;
         private readonly IDeviceManager _deviceManager;
         private readonly IOnvifDeviceCapabilityManager _capabilityManager;
+        private readonly IOnvifMediaManager _mediaManager;
 
         public DeviceAppService(IOnvifDiscoveryManager discoveryManager,
             IRepository<Entities.Device> deviceRepository,
             IRepository<Entities.Group> groupRepository,
             IDeviceManager deviceManager,
-            IOnvifDeviceCapabilityManager capabilityManager) : base(deviceRepository)
+            IOnvifDeviceCapabilityManager capabilityManager,
+            IOnvifMediaManager mediaManager) : base(deviceRepository)
         {
             _discoveryManager = discoveryManager;
             _deviceRepository = deviceRepository;
             _groupRepository = groupRepository;
             _deviceManager = deviceManager;
             _capabilityManager = capabilityManager;
+            _mediaManager = mediaManager;
         }
 
         public async Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync()
@@ -87,17 +93,8 @@ namespace Eoss.Backend.CloudSense.Device
         {
             CheckUpdatePermission();
 
-            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
-            if (device == null)
-            {
-                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
-            }
-
-            var group = await _groupRepository.FirstOrDefaultAsync(g => g.Id == groupId);
-            if (group == null)
-            {
-                throw new UserFriendlyException(L("GroupIdNotExist", groupId));
-            }
+            var device = await GetDeviceByDeviceIdAsync(deviceId);
+            var group = await GetGroupByGroupId(groupId);
 
             device.Group = group;
             await _deviceRepository.UpdateAsync(device);
@@ -107,11 +104,7 @@ namespace Eoss.Backend.CloudSense.Device
         {
             CheckUpdatePermission();
 
-            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == input.DeviceId);
-            if (device == null)
-            {
-                throw new UserFriendlyException(L("DeviceIdNotExist", input.DeviceId));
-            }
+            var device = await GetDeviceByDeviceIdAsync(input.DeviceId);
 
             var credential = ObjectMapper.Map<Credential>(input);
             credential.Device = device;
@@ -119,40 +112,32 @@ namespace Eoss.Backend.CloudSense.Device
             await _deviceManager.SetCredentialAsync(credential);
         }
 
+        [HttpGet]
         public async Task<CapabilitiesGetDto> GetCapabilitiesAsync(string deviceId)
         {
             CheckGetPermission();
 
-            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
-            if (device == null)
-            {
-                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
-            }
-
-            var credential = await _deviceManager.GetCredentialAsync(deviceId);
-            if (credential == null)
-            {
-                throw new UserFriendlyException(L("DeviceCredentialNotSet", deviceId));
-            }
-
+            var device = await GetDeviceByDeviceIdAsync(deviceId);
+            var credential = await GetCredentialByDeviceId(deviceId);
             var capabilities = await _capabilityManager.GetCapabilitiesAsync(device.Ipv4Address, credential.Username, credential.Password);
+
             device.SetCapabilities(capabilities);
             await _deviceRepository.UpdateAsync(device);
 
-            var capabilitiesDto = ObjectMapper.Map<CapabilitiesGetDto>(capabilities);
-            return capabilitiesDto;
+            return ObjectMapper.Map<CapabilitiesGetDto>(capabilities);
         }
 
         public async Task SetInstallationParamsAsync(InstallationParamsDto input)
         {
             var installationParams = ObjectMapper.Map<InstallationParams>(input);
 
-            var device = await _deviceRepository.FirstOrDefaultAsync(device => device.DeviceId == input.DeviceId);
-            device.InstallationParams = installationParams;
+            var device = await GetDeviceByDeviceIdAsync(input.DeviceId);
+            device.InstallationParams.CopyFrom(installationParams);
 
             await _deviceRepository.UpdateAsync(device);
         }
 
+        [HttpGet]
         public async Task<InstallationParamsDto> GetInstallationParamsAsync(string deviceId)
         {
             var device = await _deviceRepository.GetAll()
@@ -170,6 +155,61 @@ namespace Eoss.Backend.CloudSense.Device
             return installationParamsDto;
         }
 
+        [HttpGet]
+        public async Task<List<ProfileGetDto>> GetProfilesAsync(string deviceId, bool forceRefresh = false)
+        {
+            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+
+            if (forceRefresh || device.Profiles.Count == 0)
+            {
+                var credential = await GetCredentialByDeviceId(deviceId);
+
+                var profiles = await _mediaManager.GetProfilesAsync(device.Ipv4Address, credential.Username, credential.Password);
+                device.Profiles = profiles;
+
+                await _deviceRepository.UpdateAsync(device);
+            }
+
+            var profileGetDtos = ObjectMapper.Map<List<ProfileGetDto>>(device.Profiles);
+            return profileGetDtos;
+        }
+
+        public async Task SetPtzParamsAsync(string deviceId, string profileToken, PtzParamsSaveDto input)
+        {
+            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+
+            var profile = device.Profiles.FirstOrDefault(profile => profile.Token == profileToken);
+
+            if (profile == null)
+            {
+                throw new UserFriendlyException(L("ProfileTokenNotExist", deviceId, profileToken));
+            }
+
+            profile.PtzParams.HomePanToNorth = input.HomePanToNorth;
+            profile.PtzParams.HomeTiltToHorizon = input.HomeTiltToHorizon;
+            profile.PtzParams.MinPanDegree = input.MinPanDegree;
+            profile.PtzParams.MaxPanDegree = input.MaxPanDegree;
+            profile.PtzParams.MinTiltDegree = input.MinTiltDegree;
+            profile.PtzParams.MaxTiltDegree = input.MaxTiltDegree;
+            profile.PtzParams.MinZoomLevel = input.MinZoomLevel;
+            profile.PtzParams.MaxZoomLevel = input.MaxZoomLevel;
+            profile.PtzParams.FocalLength = input.FocalLength;
+            profile.PtzParams.SensorWidth = input.SensorWidth;
+            profile.PtzParams.SensorHeight = input.SensorHeight;
+
+            await _deviceRepository.UpdateAsync(device);
+        }
+
+        public async Task<PtzParamsGetDto> GetPtzParamsAsync(string deviceId, string profileToken)
+        {
+            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+
+            var profile = device.Profiles.FirstOrDefault(profile => profile.Token == profileToken);
+
+            var ptzParamsGetDto = ObjectMapper.Map<PtzParamsGetDto>(profile.PtzParams);
+            return ptzParamsGetDto;
+        }
+
         protected override async Task<Entities.Device> GetEntityByIdAsync(int id)
         {
             return await CreateDeviceQueryable().FirstOrDefaultAsync(device => device.Id == id);
@@ -183,6 +223,54 @@ namespace Eoss.Backend.CloudSense.Device
         private IIncludableQueryable<Entities.Device, Entities.Group> CreateDeviceQueryable()
         {
             return _deviceRepository.GetAll().Include(device => device.Group);
+        }
+
+        private async Task<Entities.Device> GetDeviceByDeviceIdAsync(string deviceId)
+        {
+            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            return device;
+        }
+
+        private async Task<Entities.Group> GetGroupByGroupId(int groupId)
+        {
+            var group = await _groupRepository.FirstOrDefaultAsync(g => g.Id == groupId);
+            if (group == null)
+            {
+                throw new UserFriendlyException(L("GroupIdNotExist", groupId));
+            }
+
+            return group;
+        }
+
+        private async Task<Credential> GetCredentialByDeviceId(string deviceId)
+        {
+            var credential = await _deviceManager.GetCredentialAsync(deviceId);
+            if (credential == null)
+            {
+                throw new UserFriendlyException(L("DeviceCredentialNotSet", deviceId));
+            }
+
+            return credential;
+        }
+
+        private async Task<Entities.Device> GetDeviceWithProfilesByDeviceId(string deviceId)
+        {
+            var device = await _deviceRepository.GetAll()
+                .Include(device => device.Profiles)
+                .ThenInclude(profile => profile.PtzParams)
+                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            return device;
         }
     }
 }

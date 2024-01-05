@@ -56,5 +56,7 @@ namespace Eoss.Backend.Entities
 
         [DisplayName("PTZ parameters")]
         public PtzParams PtzParams { get; set; } = new PtzParams();
+
+        public Device Device { get; set; }
     }
 }
