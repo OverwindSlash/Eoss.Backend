@@ -19,5 +19,10 @@ namespace Eoss.Backend.Onvif.Ptz
             float panSpeed, float tiltSpeed, float zoomSpeed);
         Task<PtzStatusDto> StopAsync(string host, string username, string password, string profileToken,
             bool stopPan, bool stopZoom);
+
+        Task<List<PtzPresetDto>> GetPresetsAsync(string host, string username, string password, string profileToken);
+        Task<PtzStatusDto> GotoPresetAsync(string host, string username, string password, string profileToken, string presetToken,
+            float panSpeed, float tiltSpeed, float zoomSpeed);
+        Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken, string presetName);
     }
 }

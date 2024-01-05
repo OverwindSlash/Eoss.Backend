@@ -24,9 +24,5 @@ namespace Eoss.Backend.CloudSense.Device
         Task<InstallationParamsDto> GetInstallationParamsAsync(string deviceId);
 
         Task<List<ProfileGetDto>> GetProfilesAsync(string deviceId, bool forceRefresh);
-
-        Task SetPtzParamsAsync(string deviceId, string profileToken, PtzParamsSaveDto input);
-        Task<PtzParamsGetDto> GetPtzParamsAsync(string deviceId, string profileToken);
-
     }
 }

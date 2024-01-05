@@ -1,5 +1,4 @@
-﻿using System;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.UI;
@@ -9,7 +8,6 @@ using Eoss.Backend.Domain.Onvif.Capability;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using Eoss.Backend.Domain.Onvif.Media;
 using Eoss.Backend.Entities;
-using Eoss.Backend.Onvif.Ptz.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -172,42 +170,6 @@ namespace Eoss.Backend.CloudSense.Device
 
             var profileGetDtos = ObjectMapper.Map<List<ProfileGetDto>>(device.Profiles);
             return profileGetDtos;
-        }
-
-        public async Task SetPtzParamsAsync(string deviceId, string profileToken, PtzParamsSaveDto input)
-        {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-
-            var profile = device.Profiles.FirstOrDefault(profile => profile.Token == profileToken);
-
-            if (profile == null)
-            {
-                throw new UserFriendlyException(L("ProfileTokenNotExist", deviceId, profileToken));
-            }
-
-            profile.PtzParams.HomePanToNorth = input.HomePanToNorth;
-            profile.PtzParams.HomeTiltToHorizon = input.HomeTiltToHorizon;
-            profile.PtzParams.MinPanDegree = input.MinPanDegree;
-            profile.PtzParams.MaxPanDegree = input.MaxPanDegree;
-            profile.PtzParams.MinTiltDegree = input.MinTiltDegree;
-            profile.PtzParams.MaxTiltDegree = input.MaxTiltDegree;
-            profile.PtzParams.MinZoomLevel = input.MinZoomLevel;
-            profile.PtzParams.MaxZoomLevel = input.MaxZoomLevel;
-            profile.PtzParams.FocalLength = input.FocalLength;
-            profile.PtzParams.SensorWidth = input.SensorWidth;
-            profile.PtzParams.SensorHeight = input.SensorHeight;
-
-            await _deviceRepository.UpdateAsync(device);
-        }
-
-        public async Task<PtzParamsGetDto> GetPtzParamsAsync(string deviceId, string profileToken)
-        {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-
-            var profile = device.Profiles.FirstOrDefault(profile => profile.Token == profileToken);
-
-            var ptzParamsGetDto = ObjectMapper.Map<PtzParamsGetDto>(profile.PtzParams);
-            return ptzParamsGetDto;
         }
 
         protected override async Task<Entities.Device> GetEntityByIdAsync(int id)

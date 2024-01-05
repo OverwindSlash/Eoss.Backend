@@ -107,6 +107,55 @@ namespace Eoss.Backend.Domain.Onvif.Ptz
             return await GetStoppedPositionAsync(profileToken, ptz);
         }
 
+        public async Task<List<PtzPreset>> GetPresetsAsync(string host, string username, string password, string profileToken)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var response = await ptz.GetPresetsAsync(profileToken);
+
+            List<PtzPreset> presets = response.Preset.Select(preset => new PtzPreset()
+                {
+                    Name = preset.Name,
+                    Token = preset.token,
+                    PanPosition = preset.PTZPosition.PanTilt.x,
+                    TiltPosition = preset.PTZPosition.PanTilt.y,
+                    PanTiltSpace = preset.PTZPosition.PanTilt.space,
+                    ZoomPosition = preset.PTZPosition.Zoom.x,
+                    ZoomSpace = preset.PTZPosition.Zoom.space
+                }).ToList();
+
+            return presets;
+        }
+
+        public async Task<PtzStatus> GotoPresetAsync(string host, string username, string password, string profileToken, 
+            string presetToken, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptz.GotoPresetAsync(profileToken, presetToken, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+            });
+
+            return await GetStoppedPositionAsync(profileToken, ptz);
+        }
+
+        public async Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken,
+            string presetName)
+        {
+            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+
+            var newPreset = await ptz.SetPresetAsync(new SetPresetRequest(profileToken, presetName, presetToken));
+
+            return newPreset.PresetToken;
+        }
+
         private static async Task<List<PtzConfig>> DoGetPtzConfigAsync(string host, string username, string password)
         {
             var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);

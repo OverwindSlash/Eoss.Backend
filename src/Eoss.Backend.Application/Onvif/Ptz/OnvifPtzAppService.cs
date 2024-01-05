@@ -57,5 +57,26 @@ namespace Eoss.Backend.Onvif.Ptz
             var ptzStatus = await _ptzManager.StopAsync(host, username, password, profileToken, stopPan, stopZoom);
             return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
         }
+
+        public async Task<List<PtzPresetDto>> GetPresetsAsync(string host, string username, string password, string profileToken)
+        {
+            var ptzPresets = await _ptzManager.GetPresetsAsync(host, username, password, profileToken);
+            return ObjectMapper.Map<List<PtzPresetDto>>(ptzPresets);
+        }
+
+        public async Task<PtzStatusDto> GotoPresetAsync(string host, string username, string password, string profileToken, string presetToken,
+            float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzStatus = await _ptzManager.GotoPresetAsync(host, username, password, profileToken, presetToken, 
+                panSpeed, tiltSpeed, zoomSpeed);
+            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+        }
+
+        public async Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken,
+            string presetName)
+        {
+            var token = await _ptzManager.SetPresetAsync(host, username, password, profileToken, presetToken, presetName);
+            return token;
+        }
     }
 }
