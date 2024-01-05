@@ -1,5 +1,4 @@
-﻿using System;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using Abp.UI;
 using Eoss.Backend.CloudSense.Ptz.Dto;
@@ -7,11 +6,12 @@ using Eoss.Backend.Domain.CloudSense.Device;
 using Eoss.Backend.Domain.Onvif.Ptz;
 using Eoss.Backend.Entities;
 using Eoss.Backend.Onvif.Ptz.Dto;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Eoss.Backend.CloudSense.Ptz
 {
