@@ -28,6 +28,7 @@ namespace Eoss.Backend.Domain.CloudSense.Device
         {
             return await _credentialRepository
                 .Query(q => q.Where(cred => cred.Device.DeviceId == deviceId))
+                .Include(cred => cred.Device)
                 .FirstOrDefaultAsync();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Eoss.Backend.CloudSense.Device.Dto;
+using Eoss.Backend.Onvif.Media.Dto;
 using Eoss.Backend.Onvif.Ptz.Dto;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,5 +25,9 @@ namespace Eoss.Backend.CloudSense.Device
         Task<InstallationParamsDto> GetInstallationParamsAsync(string deviceId);
 
         Task<List<ProfileGetDto>> GetProfilesAsync(string deviceId, bool forceRefresh);
+
+        Task<List<VideoSourceDto>> GetVideoSourcesAsync(string deviceId, string profileToken);
+
+        Task<DeviceCoordinateDto> GetDeviceCoordinateAsync(string deviceId);
     }
 }

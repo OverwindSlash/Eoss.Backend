@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eoss.Backend.Onvif.Media.Dto;
 
 namespace Eoss.Backend.CloudSense.Device
 {
@@ -53,8 +54,10 @@ namespace Eoss.Backend.CloudSense.Device
                 var discoveredDevices = await _discoveryManager.DiscoveryDeviceAsync();
                 foreach (var discoveredDevice in discoveredDevices)
                 {
-                    var device = await _deviceRepository.FirstOrDefaultAsync(
-                        d => d.Ipv4Address == discoveredDevice.Ipv4Address);
+                    var device = await _deviceRepository.GetAll()
+                        .Include(device => device.Profiles)
+                        .Include(device => device.Group)
+                        .FirstOrDefaultAsync(d => d.Ipv4Address == discoveredDevice.Ipv4Address);
 
                     if (device == null)
                     {
@@ -126,10 +129,9 @@ namespace Eoss.Backend.CloudSense.Device
             {
                 CheckUpdatePermission();
 
-                var device = await GetDeviceByDeviceIdAsync(input.DeviceId);
-
-                var credential = ObjectMapper.Map<Credential>(input);
-                credential.Device = device;
+                var credential = await GetCredentialByDeviceId(input.DeviceId);
+                credential.Username = input.Username;
+                credential.Password = input.Password;
 
                 await _deviceManager.SetCredentialAsync(credential);
             }
@@ -228,6 +230,66 @@ namespace Eoss.Backend.CloudSense.Device
 
                 var profileGetDtos = ObjectMapper.Map<List<ProfileGetDto>>(device.Profiles);
                 return profileGetDtos;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
+
+        public async Task<List<VideoSourceDto>> GetVideoSourcesAsync(string deviceId, string profileToken)
+        {
+            try
+            {
+                CheckGetPermission();
+
+                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
+
+                List<VideoSourceDto> videoSourceDtos = new();
+
+                var profiles = await _mediaManager.GetProfilesAsync(device.Ipv4Address, credential.Username, credential.Password);
+                var profile = profiles.SingleOrDefault(p => p.Token == profileToken);
+                if (profile != null)
+                {
+                    var videoSourceDto = new VideoSourceDto()
+                    {
+                        Token = profile.VideoSourceToken,
+                        StreamUri = profile.StreamUri,
+                        VideoWidth = profile.VideoWidth,
+                        VideoHeight = profile.VideoHeight,
+                        Framerate = profile.FrameRate
+                    };
+
+                    videoSourceDtos.Add(videoSourceDto);
+                }
+
+                return videoSourceDtos;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
+
+        public async Task<DeviceCoordinateDto> GetDeviceCoordinateAsync(string deviceId)
+        {
+            try
+            {
+                CheckGetPermission();
+
+                var device = await _deviceRepository.GetAll()
+                    .Include(device => device.InstallationParams)
+                    .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+
+                if (device == null)
+                {
+                    throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+                }
+
+                var deviceCoordinateDto = ObjectMapper.Map<DeviceCoordinateDto>(device.InstallationParams);
+
+                return deviceCoordinateDto;
             }
             catch (Exception e)
             {
