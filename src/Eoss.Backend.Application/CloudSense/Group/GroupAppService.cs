@@ -1,10 +1,12 @@
 ﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
+using Abp.UI;
 using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.CloudSense.Group.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,19 +29,26 @@ namespace Eoss.Backend.CloudSense.Group
 
         public async Task<List<DeviceUnderGroupDto>> GetAllDevicesInGroupAsync(EntityDto<int> group)
         {
-            List<DeviceUnderGroupDto> result = new List<DeviceUnderGroupDto>();
-
-            var deviceGroup = await GetAsync(group);
-            if (deviceGroup != null)
+            try
             {
-                var devices = await _deviceRepository.GetAll()
-                    .Include(device => device.Group)
-                    .Where(device => device.Group.Id == group.Id).ToListAsync();
+                List<DeviceUnderGroupDto> result = new List<DeviceUnderGroupDto>();
 
-                result.AddRange(devices.Select(device => ObjectMapper.Map<DeviceUnderGroupDto>(device)));
+                var deviceGroup = await GetAsync(group);
+                if (deviceGroup != null)
+                {
+                    var devices = await _deviceRepository.GetAll()
+                        .Include(device => device.Group)
+                        .Where(device => device.Group.Id == group.Id).ToListAsync();
+
+                    result.AddRange(devices.Select(device => ObjectMapper.Map<DeviceUnderGroupDto>(device)));
+                }
+
+                return result;
             }
-
-            return result;
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         protected override Task<Entities.Group> GetEntityByIdAsync(int id)

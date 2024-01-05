@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using Abp.UI;
@@ -8,8 +8,10 @@ using Eoss.Backend.Domain.Onvif.Ptz;
 using Eoss.Backend.Entities;
 using Eoss.Backend.Onvif.Ptz.Dto;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eoss.Backend.CloudSense.Ptz
 {
@@ -29,164 +31,257 @@ namespace Eoss.Backend.CloudSense.Ptz
 
         public async Task SetPtzParamsAsync(string deviceId, string profileToken, PtzParamsSaveDto input)
         {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-            var profile = GetDeviceProfile(device, profileToken);
+            try
+            {
+                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+                var profile = GetDeviceProfile(device, profileToken);
 
-            profile.PtzParams.HomePanToNorth = input.HomePanToNorth;
-            profile.PtzParams.HomeTiltToHorizon = input.HomeTiltToHorizon;
-            profile.PtzParams.MinPanDegree = input.MinPanDegree;
-            profile.PtzParams.MaxPanDegree = input.MaxPanDegree;
-            profile.PtzParams.MinTiltDegree = input.MinTiltDegree;
-            profile.PtzParams.MaxTiltDegree = input.MaxTiltDegree;
-            profile.PtzParams.MinZoomLevel = input.MinZoomLevel;
-            profile.PtzParams.MaxZoomLevel = input.MaxZoomLevel;
-            profile.PtzParams.FocalLength = input.FocalLength;
-            profile.PtzParams.SensorWidth = input.SensorWidth;
-            profile.PtzParams.SensorHeight = input.SensorHeight;
+                profile.PtzParams.HomePanToNorth = input.HomePanToNorth;
+                profile.PtzParams.HomeTiltToHorizon = input.HomeTiltToHorizon;
+                profile.PtzParams.MinPanDegree = input.MinPanDegree;
+                profile.PtzParams.MaxPanDegree = input.MaxPanDegree;
+                profile.PtzParams.MinTiltDegree = input.MinTiltDegree;
+                profile.PtzParams.MaxTiltDegree = input.MaxTiltDegree;
+                profile.PtzParams.MinZoomLevel = input.MinZoomLevel;
+                profile.PtzParams.MaxZoomLevel = input.MaxZoomLevel;
+                profile.PtzParams.FocalLength = input.FocalLength;
+                profile.PtzParams.SensorWidth = input.SensorWidth;
+                profile.PtzParams.SensorHeight = input.SensorHeight;
 
-            await _deviceRepository.UpdateAsync(device);
+                await _deviceRepository.UpdateAsync(device);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
+        [HttpGet]
         public async Task<PtzParamsGetDto> GetPtzParamsAsync(string deviceId, string profileToken)
         {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-            var profile = GetDeviceProfile(device, profileToken);
+            try
+            {
+                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+                var profile = GetDeviceProfile(device, profileToken);
 
-            var ptzParamsGetDto = ObjectMapper.Map<PtzParamsGetDto>(profile.PtzParams);
-            return ptzParamsGetDto;
+                var ptzParamsGetDto = ObjectMapper.Map<PtzParamsGetDto>(profile.PtzParams);
+                return ptzParamsGetDto;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
+        [HttpGet]
         public async Task<PtzStatusDto> GetStatusAsync(string deviceId, string profileToken)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var ptzStatus = await _ptzManager.GetStatusAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken);
-            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+                var ptzStatus = await _ptzManager.GetStatusAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken);
+                return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusDto> AbsoluteMoveAsync(string deviceId, string profileToken, float pan, float tilt, float zoom, 
             float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var ptzStatus = await _ptzManager.AbsoluteMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
-                pan, tilt, zoom, panSpeed, tiltSpeed, zoomSpeed);
-            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+                var ptzStatus = await _ptzManager.AbsoluteMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
+                    pan, tilt, zoom, panSpeed, tiltSpeed, zoomSpeed);
+                return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusDto> RelativeMoveAsync(string deviceId, string profileToken, float pan, float tilt, float zoom, 
             float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var ptzStatus = await _ptzManager.RelativeMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
-                pan, tilt, zoom, panSpeed, tiltSpeed, zoomSpeed);
-            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+                var ptzStatus = await _ptzManager.RelativeMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
+                    pan, tilt, zoom, panSpeed, tiltSpeed, zoomSpeed);
+                return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusInDegreeDto> GetStatusInDegreeAsync(string deviceId, string profileToken)
         {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
-            var profile = GetDeviceProfile(device, profileToken);
-            var ptzParams = profile.PtzParams;
+            try
+            {
+                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
+                var profile = GetDeviceProfile(device, profileToken);
+                var ptzParams = profile.PtzParams;
 
-            var ptzStatus = await _ptzManager.GetStatusAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken);
-            var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
+                var ptzStatus = await _ptzManager.GetStatusAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken);
+                var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
 
-            return ptzStatusInDegreeDto;
+                return ptzStatusInDegreeDto;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusInDegreeDto> AbsoluteMoveWithDegreeAsync(string deviceId, string profileToken, 
             float panInDegree, float tiltInDegree, int zoomInLevel, float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1)
         {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
-            var profile = GetDeviceProfile(device, profileToken);
-            var ptzParams = profile.PtzParams;
+            try
+            {
+                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
+                var profile = GetDeviceProfile(device, profileToken);
+                var ptzParams = profile.PtzParams;
 
-            var panNormalized = ptzParams.PanDegreeToNormalization(panInDegree);
-            var tiltNormalized = ptzParams.TiltDegreeToNormalization(tiltInDegree);
-            var zoomNormalized = ptzParams.ZoomLevelToNormalization(zoomInLevel);
+                var panNormalized = ptzParams.PanDegreeToNormalization(panInDegree);
+                var tiltNormalized = ptzParams.TiltDegreeToNormalization(tiltInDegree);
+                var zoomNormalized = ptzParams.ZoomLevelToNormalization(zoomInLevel);
 
-            var ptzStatus = await _ptzManager.AbsoluteMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
-                panNormalized, tiltNormalized, zoomNormalized, panSpeed, tiltSpeed, zoomSpeed);
-            var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
+                var ptzStatus = await _ptzManager.AbsoluteMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
+                    panNormalized, tiltNormalized, zoomNormalized, panSpeed, tiltSpeed, zoomSpeed);
+                var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
 
-            return ptzStatusInDegreeDto;
+                return ptzStatusInDegreeDto;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusInDegreeDto> RelativeMoveWithDegreeAsync(string deviceId, string profileToken, 
             float panInDegree, float tiltInDegree, int zoomInLevel, float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1)
         {
-            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
-            var profile = GetDeviceProfile(device, profileToken);
-            var ptzParams = profile.PtzParams;
+            try
+            {
+                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
+                var profile = GetDeviceProfile(device, profileToken);
+                var ptzParams = profile.PtzParams;
 
-            var panNormalized = panInDegree / ptzParams.PanDegreePerNormal;
-            var tiltNormalized = -tiltInDegree / ptzParams.TiltDegreePerNormal / 2;
-            var zoomNormalized = zoomInLevel / ptzParams.ZoomLevelPerNormal;
+                var panNormalized = panInDegree / ptzParams.PanDegreePerNormal;
+                var tiltNormalized = -tiltInDegree / ptzParams.TiltDegreePerNormal / 2;
+                var zoomNormalized = zoomInLevel / ptzParams.ZoomLevelPerNormal;
 
-            var ptzStatus = await _ptzManager.RelativeMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
-                panNormalized, tiltNormalized, zoomNormalized, panSpeed, tiltSpeed, zoomSpeed);
-            var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
+                var ptzStatus = await _ptzManager.RelativeMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
+                    panNormalized, tiltNormalized, zoomNormalized, panSpeed, tiltSpeed, zoomSpeed);
+                var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
 
-            return ptzStatusInDegreeDto;
+                return ptzStatusInDegreeDto;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task ContinuousMoveAsync(string deviceId, string profileToken, float panSpeed, float tiltSpeed, float zoomSpeed)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            await _ptzManager.ContinuousMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
-                panSpeed, tiltSpeed, zoomSpeed);
+                await _ptzManager.ContinuousMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
+                    panSpeed, tiltSpeed, zoomSpeed);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusDto> StopAsync(string deviceId, string profileToken, bool stopPan, bool stopZoom)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var ptzStatus = await _ptzManager.StopAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
-                stopPan, stopZoom);
-            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+                var ptzStatus = await _ptzManager.StopAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
+                    stopPan, stopZoom);
+                return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<List<PtzPresetDto>> GetPresetsAsync(string deviceId, string profileToken)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var ptzPresets = await _ptzManager.GetPresetsAsync(
-                device.Ipv4Address, credential.Username, credential.Password, profileToken);
-            return ObjectMapper.Map<List<PtzPresetDto>>(ptzPresets);
+                var ptzPresets = await _ptzManager.GetPresetsAsync(
+                    device.Ipv4Address, credential.Username, credential.Password, profileToken);
+                return ObjectMapper.Map<List<PtzPresetDto>>(ptzPresets);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<PtzStatusDto> GotoPresetAsync(string deviceId, string profileToken, string presetToken, 
             float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var ptzStatus = await _ptzManager.GotoPresetAsync(device.Ipv4Address, credential.Username, credential.Password,
-                profileToken, presetToken, panSpeed, tiltSpeed, zoomSpeed);
-            return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+                var ptzStatus = await _ptzManager.GotoPresetAsync(device.Ipv4Address, credential.Username, credential.Password,
+                    profileToken, presetToken, panSpeed, tiltSpeed, zoomSpeed);
+                return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         public async Task<string> SetPresetAsync(string deviceId, string profileToken, string presetToken, string presetName)
         {
-            var device = await GetDeviceByDeviceIdAsync(deviceId);
-            var credential = await GetCredentialByDeviceId(deviceId);
+            try
+            {
+                var device = await GetDeviceByDeviceIdAsync(deviceId);
+                var credential = await GetCredentialByDeviceId(deviceId);
 
-            var token = await _ptzManager.SetPresetAsync(device.Ipv4Address, credential.Username, credential.Password, 
-                profileToken, presetToken, presetName);
+                var token = await _ptzManager.SetPresetAsync(device.Ipv4Address, credential.Username, credential.Password,
+                    profileToken, presetToken, presetName);
 
-            return token;
+                return token;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
         }
 
         private Profile GetDeviceProfile(Entities.Device device, string profileToken)
