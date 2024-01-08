@@ -8,6 +8,7 @@ using Eoss.Backend.Domain.Onvif.Capability;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using Eoss.Backend.Domain.Onvif.Media;
 using Eoss.Backend.Entities;
+using Eoss.Backend.Onvif.Media.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -15,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eoss.Backend.Onvif.Media.Dto;
 
 namespace Eoss.Backend.CloudSense.Device
 {
@@ -105,6 +105,26 @@ namespace Eoss.Backend.CloudSense.Device
             }
         }
 
+        public override async Task<DeviceGetDto> CreateAsync(DeviceSaveDto input)
+        {
+            try
+            {
+                CheckCreatePermission();
+
+                var entity = MapToEntity(input);
+                entity.Group = _groupRepository.FirstOrDefault(group => group.Id == input.GroupId);
+
+                await Repository.InsertAsync(entity);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                return MapToEntityDto(entity);
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
+
         public async Task SetDeviceGroupAsync(string deviceId, int groupId)
         {
             try
@@ -129,9 +149,16 @@ namespace Eoss.Backend.CloudSense.Device
             {
                 CheckUpdatePermission();
 
-                var credential = await GetCredentialByDeviceId(input.DeviceId);
+                var credential = await _deviceManager.GetCredentialAsync(input.DeviceId);
+                if (credential == null)
+                {
+                    credential = new Credential();
+                    credential.Device = _deviceRepository.FirstOrDefault(device => device.DeviceId == input.DeviceId);
+                }
+
                 credential.Username = input.Username;
                 credential.Password = input.Password;
+                
 
                 await _deviceManager.SetCredentialAsync(credential);
             }
@@ -171,7 +198,7 @@ namespace Eoss.Backend.CloudSense.Device
 
                 var installationParams = ObjectMapper.Map<InstallationParams>(input);
 
-                var device = await GetDeviceByDeviceIdAsync(input.DeviceId);
+                var device = await GetDeviceWithInstallationParamsByDeviceIdAsync(input.DeviceId);
                 device.InstallationParams.CopyFrom(installationParams);
 
                 await _deviceRepository.UpdateAsync(device);
@@ -352,6 +379,19 @@ namespace Eoss.Backend.CloudSense.Device
                 .ThenInclude(profile => profile.PtzParams)
                 .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
 
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            return device;
+        }
+
+        private async Task<Entities.Device> GetDeviceWithInstallationParamsByDeviceIdAsync(string deviceId)
+        {
+            var device = await _deviceRepository.GetAll()
+                    .Include(device => device.InstallationParams)
+                    .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
             if (device == null)
             {
                 throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
