@@ -38,6 +38,7 @@ namespace Eoss.Backend.CloudSense.Group
                 {
                     var devices = await _deviceRepository.GetAll()
                         .Include(device => device.Group)
+                        .Include(device => device.Profiles)
                         .Where(device => device.Group.Id == group.Id).ToListAsync();
 
                     result.AddRange(devices.Select(device => ObjectMapper.Map<DeviceUnderGroupDto>(device)));
@@ -58,12 +59,15 @@ namespace Eoss.Backend.CloudSense.Group
 
         protected override IQueryable<Entities.Group> CreateFilteredQuery(PagedResultRequestDto input)
         {
-            return CreateGroupQueryable();
+            return _groupRepository.GetAll()
+                .Include(group => group.Devices)
+                .ThenInclude(device => device.Profiles);
         }
 
         private IIncludableQueryable<Entities.Group, List<Entities.Device>> CreateGroupQueryable()
         {
-            return _groupRepository.GetAll().Include(group => group.Devices);
+            return _groupRepository.GetAll()
+                .Include(group => group.Devices);
         }
     }
 }

@@ -283,6 +283,8 @@ namespace Eoss.Backend.CloudSense.Device
                     {
                         Token = profile.VideoSourceToken,
                         StreamUri = profile.StreamUri,
+                        Username = credential.Username,
+                        Password = credential.Password,
                         VideoWidth = profile.VideoWidth,
                         VideoHeight = profile.VideoHeight,
                         Framerate = profile.FrameRate
