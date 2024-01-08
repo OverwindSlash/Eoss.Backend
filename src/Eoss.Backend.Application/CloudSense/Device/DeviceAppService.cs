@@ -43,6 +43,8 @@ namespace Eoss.Backend.CloudSense.Device
             _deviceManager = deviceManager;
             _capabilityManager = capabilityManager;
             _mediaManager = mediaManager;
+
+            LocalizationSourceName = BackendConsts.LocalizationSourceName;
         }
 
         public async Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync()

@@ -27,6 +27,8 @@ namespace Eoss.Backend.CloudSense.Ptz
             _deviceRepository = deviceRepository;
             _deviceManager = deviceManager;
             _ptzManager = ptzManager;
+
+            LocalizationSourceName = BackendConsts.LocalizationSourceName;
         }
 
         public async Task SetPtzParamsAsync(string deviceId, string profileToken, PtzParamsSaveDto input)

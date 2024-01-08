@@ -25,6 +25,8 @@ namespace Eoss.Backend.CloudSense.Group
         {
             _groupRepository = groupRepository;
             _deviceRepository = deviceRepository;
+
+            LocalizationSourceName = BackendConsts.LocalizationSourceName;
         }
 
         public async Task<List<DeviceUnderGroupDto>> GetAllDevicesInGroupAsync(EntityDto<int> group)
