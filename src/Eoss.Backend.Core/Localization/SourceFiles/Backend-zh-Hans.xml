@@ -102,6 +102,7 @@
     <text name="GroupIdNotExist">Group Id {0} not exist.</text>
     <text name="DeviceCredentialNotSet">Credential of device {0} not set yet.</text>
     <text name="ProfileTokenNotExist">ProfileToken {0} in device {1} not exist.</text>
+    <text name="CredentialNotSet">Credential of device {0} not set yet.</text>
   </texts>
 </localizationDictionary>
 

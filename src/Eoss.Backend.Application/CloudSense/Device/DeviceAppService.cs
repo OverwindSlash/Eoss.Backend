@@ -170,6 +170,28 @@ namespace Eoss.Backend.CloudSense.Device
             }
         }
 
+        public async Task<DeviceCredentialDto> GetDeviceCredentialAsync(string deviceId)
+        {
+            try
+            {
+                CheckGetPermission();
+
+                var credential = await _deviceManager.GetCredentialAsync(deviceId);
+                if (credential == null)
+                {
+                    throw new UserFriendlyException(L("CredentialNotSet", deviceId));
+                }
+
+                var credentialDto = ObjectMapper.Map<DeviceCredentialDto>(credential);
+                credentialDto.DeviceId = credential.Device.DeviceId;
+                return credentialDto;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<CapabilitiesGetDto> GetCapabilitiesAsync(string deviceId)
         {

@@ -2,7 +2,6 @@
 using Abp.Application.Services.Dto;
 using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.Onvif.Media.Dto;
-using Eoss.Backend.Onvif.Ptz.Dto;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -18,6 +17,7 @@ namespace Eoss.Backend.CloudSense.Device
         Task SetDeviceGroupAsync(string deviceId, int groupId);
 
         Task SetDeviceCredentialAsync(DeviceCredentialDto input);
+        Task<DeviceCredentialDto> GetDeviceCredentialAsync(string deviceId);
 
         Task<CapabilitiesGetDto> GetCapabilitiesAsync(string deviceId);
 

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eoss.Backend.CloudSense.Device.Dto
 {
-    [AutoMapTo(typeof(Credential))]
+    [AutoMap(typeof(Credential))]
     public class DeviceCredentialDto
     {
         [DisplayName("Username")]
