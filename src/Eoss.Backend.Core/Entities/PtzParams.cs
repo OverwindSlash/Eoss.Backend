@@ -125,7 +125,7 @@ namespace Eoss.Backend.Entities
             return TiltDegreeRange + (tiltOffset + MinTiltDegree);
         }
 
-        public float ZoomLevelToNormalization(int zoomLevel)
+        public float ZoomLevelToNormalization(float zoomLevel)
         {
             float zoomOffset = zoomLevel - MinZoomLevel;
 

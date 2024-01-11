@@ -19,9 +19,9 @@ namespace Eoss.Backend.CloudSense.Ptz
 
         Task<PtzStatusInDegreeDto> GetStatusInDegreeAsync(string deviceId, string profileToken);
         Task<PtzStatusInDegreeDto> AbsoluteMoveWithDegreeAsync(string deviceId, string profileToken,
-            float panInDegree, float tiltInDegree, int zoomInLevel, float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1);
+            float panInDegree, float tiltInDegree, float zoomInLevel, float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1);
         Task<PtzStatusInDegreeDto> RelativeMoveWithDegreeAsync(string deviceId, string profileToken,
-            float panInDegree, float tiltInDegree, int zoomInLevel, float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1);
+            float panInDegree, float tiltInDegree, float zoomInLevel, float panSpeed = 1, float tiltSpeed = 1, float zoomSpeed = 1);
 
         Task ContinuousMoveAsync(string deviceId, string profileToken, float panSpeed, float tiltSpeed, float zoomSpeed);
         Task<PtzStatusDto> StopAsync(string deviceId, string profileToken, bool stopPan, bool stopZoom);
