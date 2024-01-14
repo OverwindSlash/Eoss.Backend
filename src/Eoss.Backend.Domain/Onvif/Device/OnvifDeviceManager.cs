@@ -1,12 +1,29 @@
 ﻿using Abp.Domain.Services;
 using Mictlanix.DotNet.Onvif;
 using Mictlanix.DotNet.Onvif.Common;
+using Mictlanix.DotNet.Onvif.Device;
 using Capabilities = Eoss.Backend.Entities.Capabilities;
 
-namespace Eoss.Backend.Domain.Onvif.Capability
+namespace Eoss.Backend.Domain.Onvif.Device
 {
-    public class OnvifDeviceCapabilityManager : DomainService, IOnvifDeviceCapabilityManager
+    public class OnvifDeviceManager : DomainService, IOnvifDeviceManager
     {
+        public async Task<Entities.Device> GetDeviceInfoAsync(string host, string username, string password)
+        {
+            var onvifDevice = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
+            var response = await onvifDevice.GetDeviceInformationAsync(new GetDeviceInformationRequest());
+
+            var device = new Entities.Device()
+            {
+                DeviceId = response.SerialNumber,
+                Ipv4Address = host,
+                Model = response.Model,
+                Manufacturer = response.Manufacturer
+            };
+
+            return device;
+        }
+
         public async Task<Capabilities> GetCapabilitiesAsync(string host, string username, string password)
         {
             return await DoGetCapabilitiesAsync(host, username, password);

@@ -4,7 +4,6 @@ using Abp.Domain.Repositories;
 using Abp.UI;
 using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.Domain.CloudSense.Device;
-using Eoss.Backend.Domain.Onvif.Capability;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using Eoss.Backend.Domain.Onvif.Media;
 using Eoss.Backend.Entities;
@@ -16,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eoss.Backend.Domain.Onvif.Device;
 
 namespace Eoss.Backend.CloudSense.Device
 {
@@ -27,14 +27,14 @@ namespace Eoss.Backend.CloudSense.Device
         private readonly IRepository<Entities.Device> _deviceRepository;
         private readonly IRepository<Entities.Group> _groupRepository;
         private readonly IDeviceManager _deviceManager;
-        private readonly IOnvifDeviceCapabilityManager _capabilityManager;
+        private readonly IOnvifDeviceManager _capabilityManager;
         private readonly IOnvifMediaManager _mediaManager;
 
         public DeviceAppService(IOnvifDiscoveryManager discoveryManager,
             IRepository<Entities.Device> deviceRepository,
             IRepository<Entities.Group> groupRepository,
             IDeviceManager deviceManager,
-            IOnvifDeviceCapabilityManager capabilityManager,
+            IOnvifDeviceManager capabilityManager,
             IOnvifMediaManager mediaManager) : base(deviceRepository)
         {
             _discoveryManager = discoveryManager;
