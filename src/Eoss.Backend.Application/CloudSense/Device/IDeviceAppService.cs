@@ -12,6 +12,8 @@ namespace Eoss.Backend.CloudSense.Device
     {
         Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync();
 
+        Task<DeviceGetDto> AddDeviceByIpAndCredentialAsync(string host, string username, string password);
+
         Task<DeviceGetDto> GetByDeviceIdAsync(string deviceId);
 
         Task SetDeviceGroupAsync(string deviceId, int groupId);

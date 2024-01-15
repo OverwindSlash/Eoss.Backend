@@ -4,6 +4,7 @@ using Abp.Domain.Repositories;
 using Abp.UI;
 using Eoss.Backend.CloudSense.Device.Dto;
 using Eoss.Backend.Domain.CloudSense.Device;
+using Eoss.Backend.Domain.Onvif.Device;
 using Eoss.Backend.Domain.Onvif.Discovery;
 using Eoss.Backend.Domain.Onvif.Media;
 using Eoss.Backend.Entities;
@@ -15,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eoss.Backend.Domain.Onvif.Device;
 
 namespace Eoss.Backend.CloudSense.Device
 {
@@ -27,21 +27,21 @@ namespace Eoss.Backend.CloudSense.Device
         private readonly IRepository<Entities.Device> _deviceRepository;
         private readonly IRepository<Entities.Group> _groupRepository;
         private readonly IDeviceManager _deviceManager;
-        private readonly IOnvifDeviceManager _capabilityManager;
+        private readonly IOnvifDeviceManager _onvifDeviceManager;
         private readonly IOnvifMediaManager _mediaManager;
 
         public DeviceAppService(IOnvifDiscoveryManager discoveryManager,
             IRepository<Entities.Device> deviceRepository,
             IRepository<Entities.Group> groupRepository,
             IDeviceManager deviceManager,
-            IOnvifDeviceManager capabilityManager,
+            IOnvifDeviceManager onvifDeviceManager,
             IOnvifMediaManager mediaManager) : base(deviceRepository)
         {
             _discoveryManager = discoveryManager;
             _deviceRepository = deviceRepository;
             _groupRepository = groupRepository;
             _deviceManager = deviceManager;
-            _capabilityManager = capabilityManager;
+            _onvifDeviceManager = onvifDeviceManager;
             _mediaManager = mediaManager;
 
             LocalizationSourceName = BackendConsts.LocalizationSourceName;
@@ -84,6 +84,48 @@ namespace Eoss.Backend.CloudSense.Device
                 }
 
                 return deviceDtos;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
+
+        public async Task<DeviceGetDto> AddDeviceByIpAndCredentialAsync(string host, string username, string password)
+        {
+            try
+            {
+                CheckCreatePermission();
+
+                var candidateDevice = await _onvifDeviceManager.GetDeviceInfoAsync(host, username, password);
+                if (candidateDevice == null)
+                {
+                    throw new ArgumentException(L("CredentialNotCorrect", host));
+                }
+
+                var device = await _deviceRepository.FirstOrDefaultAsync(device => device.Ipv4Address == host);
+                if (device == null)
+                {
+                    device = candidateDevice;
+                }
+                else
+                {
+                    device.Name = candidateDevice.Name;
+                    device.Model = candidateDevice.Model;
+                    device.Manufacturer = candidateDevice.Manufacturer;
+                }
+
+                var id = await _deviceRepository.InsertOrUpdateAndGetIdAsync(device);
+                device.Id = id;
+
+                var credential = await GetOrCreateCredentialAsync(device.DeviceId);
+                credential.Username = username;
+                credential.Password = password;
+                credential.Device = device;
+
+                await _deviceManager.SetCredentialAsync(credential);
+
+                return ObjectMapper.Map<DeviceGetDto>(device);
             }
             catch (Exception e)
             {
@@ -151,16 +193,12 @@ namespace Eoss.Backend.CloudSense.Device
             {
                 CheckUpdatePermission();
 
-                var credential = await _deviceManager.GetCredentialAsync(input.DeviceId);
-                if (credential == null)
-                {
-                    credential = new Credential();
-                    credential.Device = _deviceRepository.FirstOrDefault(device => device.DeviceId == input.DeviceId);
-                }
+                var device = await GetDeviceByDeviceIdAsync(input.DeviceId);
 
+                var credential = await GetOrCreateCredentialAsync(input.DeviceId);
                 credential.Username = input.Username;
                 credential.Password = input.Password;
-                
+                credential.Device = device;
 
                 await _deviceManager.SetCredentialAsync(credential);
             }
@@ -168,6 +206,18 @@ namespace Eoss.Backend.CloudSense.Device
             {
                 throw new UserFriendlyException(e.Message);
             }
+        }
+
+        private async Task<Credential> GetOrCreateCredentialAsync(string deviceId)
+        {
+            var credential = await _deviceManager.GetCredentialAsync(deviceId);
+            if (credential == null)
+            {
+                credential = new Credential();
+                credential.Device = _deviceRepository.FirstOrDefault(device => device.DeviceId == deviceId);
+            }
+            
+            return credential;
         }
 
         public async Task<DeviceCredentialDto> GetDeviceCredentialAsync(string deviceId)
@@ -201,7 +251,7 @@ namespace Eoss.Backend.CloudSense.Device
 
                 var device = await GetDeviceByDeviceIdAsync(deviceId);
                 var credential = await GetCredentialByDeviceId(deviceId);
-                var capabilities = await _capabilityManager.GetCapabilitiesAsync(device.Ipv4Address, credential.Username, credential.Password);
+                var capabilities = await _onvifDeviceManager.GetCapabilitiesAsync(device.Ipv4Address, credential.Username, credential.Password);
 
                 device.SetCapabilities(capabilities);
                 await _deviceRepository.UpdateAsync(device);
@@ -362,7 +412,9 @@ namespace Eoss.Backend.CloudSense.Device
 
         private IIncludableQueryable<Entities.Device, Entities.Group> CreateDeviceQueryable()
         {
-            return _deviceRepository.GetAll().Include(device => device.Group);
+            return _deviceRepository.GetAll()
+                .Include(device => device.Profiles)
+                .Include(device => device.Group);
         }
 
         private async Task<Entities.Device> GetDeviceByDeviceIdAsync(string deviceId)

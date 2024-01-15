@@ -103,6 +103,7 @@
     <text name="DeviceCredentialNotSet">Credential of device {0} not set yet.</text>
     <text name="ProfileTokenNotExist">ProfileToken {0} in device {1} not exist.</text>
     <text name="CredentialNotSet">Credential of device {0} not set yet.</text>
+    <text name="CredentialNotCorrect">Credential of device (IP:{0}) not correct.</text>
   </texts>
 </localizationDictionary>
 
