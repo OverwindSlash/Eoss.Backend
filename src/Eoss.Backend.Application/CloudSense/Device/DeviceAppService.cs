@@ -414,6 +414,7 @@ namespace Eoss.Backend.CloudSense.Device
         {
             return _deviceRepository.GetAll()
                 .Include(device => device.Profiles)
+                .ThenInclude(profile => profile.PtzParams)
                 .Include(device => device.Group);
         }
 

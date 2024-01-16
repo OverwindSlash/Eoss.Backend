@@ -1,4 +1,6 @@
-﻿namespace Eoss.Backend.Domain.Onvif.Discovery
+﻿using System.Collections.Generic;
+
+namespace Eoss.Backend.Entities
 {
     public class DiscoveredDevice
     {

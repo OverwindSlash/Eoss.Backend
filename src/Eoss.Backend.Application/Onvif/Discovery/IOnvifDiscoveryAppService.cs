@@ -7,6 +7,6 @@ namespace Eoss.Backend.Onvif.Discovery
 {
     public interface IOnvifDiscoveryAppService : IApplicationService
     {
-        Task<List<DiscoveredDeviceDto>> DiscoveryDeviceAsync();
+        Task<List<DiscoveredDeviceDto>> DiscoveryDeviceAsync(int timeOutSecs = 1);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Abp.AutoMapper;
-using Eoss.Backend.Domain.Onvif.Discovery;
+using Eoss.Backend.Entities;
 using System.Collections.Generic;
 
 namespace Eoss.Backend.Onvif.Discovery.Dto
