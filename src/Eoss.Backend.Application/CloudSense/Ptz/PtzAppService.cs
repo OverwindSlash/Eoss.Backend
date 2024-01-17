@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Abp.Domain.Repositories;
 using Abp.UI;
 using Eoss.Backend.CloudSense.Dto;
@@ -12,16 +8,20 @@ using Eoss.Backend.Entities;
 using Eoss.Backend.Onvif.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eoss.Backend.CloudSense
 {
     public class PtzAppService : ApplicationService, IPtzAppService
     {
-        private readonly IRepository<Entities.Device> _deviceRepository;
+        private readonly IRepository<Device> _deviceRepository;
         private readonly IDeviceManager _deviceManager;
         private readonly IOnvifPtzManager _ptzManager;
 
-        public PtzAppService(IRepository<Entities.Device> deviceRepository, 
+        public PtzAppService(IRepository<Device> deviceRepository, 
             IDeviceManager deviceManager, IOnvifPtzManager ptzManager)
         {
             _deviceRepository = deviceRepository;
@@ -58,6 +58,33 @@ namespace Eoss.Backend.CloudSense
             }
         }
 
+        private async Task<Device> GetDeviceWithProfilesByDeviceId(string deviceId)
+        {
+            var device = await _deviceRepository.GetAll()
+                .Include(device => device.Profiles)
+                .ThenInclude(profile => profile.PtzParams)
+                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            return device;
+        }
+
+        private Profile GetDeviceProfile(Device device, string profileToken)
+        {
+            var profile = device.Profiles.FirstOrDefault(profile => profile.Token == profileToken);
+
+            if (profile == null)
+            {
+                throw new UserFriendlyException(L("ProfileTokenNotExist", device.DeviceId, profileToken));
+            }
+
+            return profile;
+        }
+
         [HttpGet]
         public async Task<PtzParamsGetDto> GetPtzParamsAsync(string deviceId, string profileToken)
         {
@@ -90,6 +117,28 @@ namespace Eoss.Backend.CloudSense
             {
                 throw new UserFriendlyException(e.Message);
             }
+        }
+
+        private async Task<Device> GetDeviceByDeviceIdAsync(string deviceId)
+        {
+            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+            if (device == null)
+            {
+                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+            }
+
+            return device;
+        }
+
+        private async Task<Credential> GetCredentialByDeviceId(string deviceId)
+        {
+            var credential = await _deviceManager.GetCredentialAsync(deviceId);
+            if (credential == null)
+            {
+                throw new UserFriendlyException(L("DeviceCredentialNotSet", deviceId));
+            }
+
+            return credential;
         }
 
         public async Task<PtzStatusDto> AbsoluteMoveAsync(string deviceId, string profileToken, float pan, float tilt, float zoom, 
@@ -146,6 +195,21 @@ namespace Eoss.Backend.CloudSense
             {
                 throw new UserFriendlyException(e.Message);
             }
+        }
+
+        private static PtzStatusInDegreeDto ConvertToDegree(PtzParams ptzParams, PtzStatus ptzStatus)
+        {
+            var ptzStatusInDegreeDto = new PtzStatusInDegreeDto()
+            {
+                PanPosition = ptzParams.PanNormalizationToDegree(ptzStatus.PanPosition),
+                TiltPosition = ptzParams.TiltNormalizationToDegree(ptzStatus.TiltPosition),
+                ZoomPosition = ptzParams.ZoomNormalizationToLevel(ptzStatus.ZoomPosition),
+                PanTiltStatus = ptzStatus.PanTiltStatus,
+                ZoomStatus = ptzStatus.ZoomStatus,
+                UtcDateTime = ptzStatus.UtcDateTime,
+                Error = ptzStatus.Error
+            };
+            return ptzStatusInDegreeDto;
         }
 
         public async Task<PtzStatusInDegreeDto> AbsoluteMoveWithDegreeAsync(string deviceId, string profileToken, 
@@ -284,70 +348,6 @@ namespace Eoss.Backend.CloudSense
             {
                 throw new UserFriendlyException(e.Message);
             }
-        }
-
-        private Profile GetDeviceProfile(Entities.Device device, string profileToken)
-        {
-            var profile = device.Profiles.FirstOrDefault(profile => profile.Token == profileToken);
-
-            if (profile == null)
-            {
-                throw new UserFriendlyException(L("ProfileTokenNotExist", device.DeviceId, profileToken));
-            }
-
-            return profile;
-        }
-
-        private async Task<Entities.Device> GetDeviceWithProfilesByDeviceId(string deviceId)
-        {
-            var device = await _deviceRepository.GetAll()
-                .Include(device => device.Profiles)
-                .ThenInclude(profile => profile.PtzParams)
-                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
-
-            if (device == null)
-            {
-                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
-            }
-
-            return device;
-        }
-
-        private async Task<Entities.Device> GetDeviceByDeviceIdAsync(string deviceId)
-        {
-            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
-            if (device == null)
-            {
-                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
-            }
-
-            return device;
-        }
-        
-        private async Task<Credential> GetCredentialByDeviceId(string deviceId)
-        {
-            var credential = await _deviceManager.GetCredentialAsync(deviceId);
-            if (credential == null)
-            {
-                throw new UserFriendlyException(L("DeviceCredentialNotSet", deviceId));
-            }
-
-            return credential;
-        }
-
-        private static PtzStatusInDegreeDto ConvertToDegree(PtzParams ptzParams, PtzStatus ptzStatus)
-        {
-            var ptzStatusInDegreeDto = new PtzStatusInDegreeDto()
-            {
-                PanPosition = ptzParams.PanNormalizationToDegree(ptzStatus.PanPosition),
-                TiltPosition = ptzParams.TiltNormalizationToDegree(ptzStatus.TiltPosition),
-                ZoomPosition = ptzParams.ZoomNormalizationToLevel(ptzStatus.ZoomPosition),
-                PanTiltStatus = ptzStatus.PanTiltStatus,
-                ZoomStatus = ptzStatus.ZoomStatus,
-                UtcDateTime = ptzStatus.UtcDateTime,
-                Error = ptzStatus.Error
-            };
-            return ptzStatusInDegreeDto;
         }
     }
 }

@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Eoss.Backend.CloudSense.Dto;
 using Eoss.Backend.Onvif.Dto;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Eoss.Backend.CloudSense
 {
     public interface IDeviceAppService : 
         IAsyncCrudAppService<DeviceGetDto, int, PagedResultRequestDto, DeviceSaveDto, DeviceSaveDto>
     {
-        Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync();
+        Task<List<DeviceGetDto>> DiscoveryAndSyncDeviceAsync(int timeoutSecs = 1);
 
         Task<DeviceGetDto> AddDeviceByIpAndCredentialAsync(string host, string username, string password);
 

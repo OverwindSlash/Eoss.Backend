@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
+using Eoss.Backend.Entities;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Abp.Application.Services.Dto;
-using Abp.AutoMapper;
 
 namespace Eoss.Backend.CloudSense.Dto
 {
-    [AutoMapFrom(typeof(Entities.Device))]
+    [AutoMapFrom(typeof(Device))]
     public class DeviceUnderGroupDto : EntityDto<int>
     {
         [DisplayName("Device Id")]
