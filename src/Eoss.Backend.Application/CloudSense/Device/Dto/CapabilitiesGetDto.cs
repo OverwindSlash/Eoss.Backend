@@ -1,10 +1,10 @@
-﻿using Abp.Application.Services.Dto;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
 using Eoss.Backend.Entities;
-using System.Collections.Generic;
-using System.ComponentModel;
 
-namespace Eoss.Backend.CloudSense.Device.Dto
+namespace Eoss.Backend.CloudSense.Dto
 {
     [AutoMapFrom(typeof(Capabilities))]
     public class CapabilitiesGetDto : EntityDto<int>

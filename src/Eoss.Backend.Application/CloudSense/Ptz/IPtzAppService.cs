@@ -1,10 +1,10 @@
-﻿using Abp.Application.Services;
-using Eoss.Backend.CloudSense.Ptz.Dto;
-using Eoss.Backend.Onvif.Ptz.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Abp.Application.Services;
+using Eoss.Backend.CloudSense.Dto;
+using Eoss.Backend.Onvif.Dto;
 
-namespace Eoss.Backend.CloudSense.Ptz
+namespace Eoss.Backend.CloudSense
 {
     public interface IPtzAppService : IApplicationService
     {

@@ -2,8 +2,7 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.UI;
-using Eoss.Backend.CloudSense.Device.Dto;
-using Eoss.Backend.CloudSense.Group.Dto;
+using Eoss.Backend.CloudSense.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
@@ -11,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Eoss.Backend.CloudSense.Group
+namespace Eoss.Backend.CloudSense
 {
     public class GroupAppService : 
         AsyncCrudAppService<Entities.Group, GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>,

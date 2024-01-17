@@ -1,10 +1,10 @@
 ﻿using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.Domain.Onvif.Discovery
+namespace Eoss.Backend.Domain.Onvif
 {
     public interface IOnvifDiscoveryManager : IDomainService
     {
-        Task<List<DiscoveredDevice>> DiscoveryDeviceAsync(int timeOutSecs = 1);
+        Task<List<DiscoveredDevice>> DiscoveryDeviceAsync(int timeoutSecs = 1);
     }
 }

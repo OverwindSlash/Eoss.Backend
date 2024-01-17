@@ -2,7 +2,7 @@
 using Eoss.Backend.Entities;
 using System.Collections.Generic;
 
-namespace Eoss.Backend.Onvif.Discovery.Dto
+namespace Eoss.Backend.Onvif.Dto
 {
     [AutoMapFrom(typeof(DiscoveredDevice))]
     public class DiscoveredDeviceDto

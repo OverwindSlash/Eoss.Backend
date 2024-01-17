@@ -2,7 +2,7 @@
 using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.Domain.Onvif.Discovery
+namespace Eoss.Backend.Domain.Onvif
 {
     public class OnvifDiscoveryManager : DomainService, IOnvifDiscoveryManager, ISingletonDependency
     {
@@ -13,12 +13,12 @@ namespace Eoss.Backend.Domain.Onvif.Discovery
             OnvifDiscovery = new OnvifDiscovery.Discovery();
         }
 
-        public async Task<List<DiscoveredDevice>> DiscoveryDeviceAsync(int timeOutSecs = 1)
+        public Task<List<DiscoveredDevice>> DiscoveryDeviceAsync(int timeoutSecs = 1)
         {
-            return await DoDiscoveryDeviceAsync(timeOutSecs);
+            return DoDiscoveryDeviceAsync(timeoutSecs);
         }
 
-        private async Task<List<DiscoveredDevice>> DoDiscoveryDeviceAsync(int timeOutSecs)
+        private static async Task<List<DiscoveredDevice>> DoDiscoveryDeviceAsync(int timeOutSecs)
         {
             List<DiscoveredDevice> discoveredDevices = new ();
             try

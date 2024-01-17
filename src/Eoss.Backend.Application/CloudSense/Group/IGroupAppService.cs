@@ -1,11 +1,10 @@
-﻿using Abp.Application.Services;
-using Abp.Application.Services.Dto;
-using Eoss.Backend.CloudSense.Device.Dto;
-using Eoss.Backend.CloudSense.Group.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Abp.Application.Services;
+using Abp.Application.Services.Dto;
+using Eoss.Backend.CloudSense.Dto;
 
-namespace Eoss.Backend.CloudSense.Group
+namespace Eoss.Backend.CloudSense
 {
     public interface IGroupAppService : 
         IAsyncCrudAppService<GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>

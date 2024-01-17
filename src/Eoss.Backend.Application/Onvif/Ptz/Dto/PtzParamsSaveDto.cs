@@ -1,9 +1,9 @@
-﻿using Abp.AutoMapper;
-using Eoss.Backend.Entities;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Abp.AutoMapper;
+using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.Onvif.Ptz.Dto
+namespace Eoss.Backend.Onvif.Dto
 {
     [AutoMapTo(typeof(PtzParams))]
     public class PtzParamsSaveDto

@@ -1,13 +1,13 @@
 ﻿using Abp.Application.Services;
 using Abp.UI;
-using Eoss.Backend.CloudSense.Device.Dto;
-using Eoss.Backend.Domain.Onvif.Device;
-using Eoss.Backend.Onvif.Capability.Dto;
+using Eoss.Backend.Domain.Onvif;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Eoss.Backend.CloudSense.Dto;
+using Eoss.Backend.Onvif.Dto;
 
-namespace Eoss.Backend.Onvif.Capability
+namespace Eoss.Backend.Onvif
 {
     public class OnvifDeviceAppService : ApplicationService, IOnvifDeviceAppService
     {

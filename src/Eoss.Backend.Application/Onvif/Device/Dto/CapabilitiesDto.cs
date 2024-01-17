@@ -2,7 +2,7 @@
 using Eoss.Backend.Entities;
 using System.Collections.Generic;
 
-namespace Eoss.Backend.Onvif.Capability.Dto
+namespace Eoss.Backend.Onvif.Dto
 {
     [AutoMapFrom(typeof(Capabilities))]
     public class CapabilitiesDto

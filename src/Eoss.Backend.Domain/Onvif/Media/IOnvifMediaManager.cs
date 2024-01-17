@@ -1,7 +1,7 @@
 ﻿using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.Domain.Onvif.Media
+namespace Eoss.Backend.Domain.Onvif
 {
     public interface IOnvifMediaManager : IDomainService
     {

@@ -1,11 +1,12 @@
-﻿using Abp.Domain.Services;
+﻿using Abp.Dependency;
+using Abp.Domain.Services;
 using Mictlanix.DotNet.Onvif;
 using Mictlanix.DotNet.Onvif.Common;
 using Profile = Eoss.Backend.Entities.Profile;
 
-namespace Eoss.Backend.Domain.Onvif.Media
+namespace Eoss.Backend.Domain.Onvif
 {
-    public class OnvifMediaManager : DomainService, IOnvifMediaManager
+    public class OnvifMediaManager : DomainService, IOnvifMediaManager, ISingletonDependency
     {
         public async Task<List<Profile>> GetProfilesAsync(string host, string username, string password)
         {

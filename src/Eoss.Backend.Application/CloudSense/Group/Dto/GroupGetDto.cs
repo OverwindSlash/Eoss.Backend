@@ -1,10 +1,9 @@
-﻿using Abp.Application.Services.Dto;
-using Abp.AutoMapper;
-using Eoss.Backend.CloudSense.Device.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Abp.Application.Services.Dto;
+using Abp.AutoMapper;
 
-namespace Eoss.Backend.CloudSense.Group.Dto
+namespace Eoss.Backend.CloudSense.Dto
 {
     [AutoMapFrom(typeof(Entities.Group))]
     public class GroupGetDto : EntityDto<int>

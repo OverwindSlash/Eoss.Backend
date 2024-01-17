@@ -1,7 +1,7 @@
 ﻿using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.Domain.Onvif.Ptz
+namespace Eoss.Backend.Domain.Onvif
 {
     public interface IOnvifPtzManager : IDomainService
     {

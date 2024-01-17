@@ -1,8 +1,8 @@
-﻿using Abp.AutoMapper;
+﻿using System;
+using Abp.AutoMapper;
 using Eoss.Backend.Entities;
-using System;
 
-namespace Eoss.Backend.Onvif.Ptz.Dto
+namespace Eoss.Backend.Onvif.Dto
 {
     [AutoMapFrom(typeof(PtzStatus))]
     public class PtzStatusDto

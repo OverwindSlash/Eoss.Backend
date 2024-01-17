@@ -1,9 +1,9 @@
 ﻿using Abp.Application.Services;
-using Eoss.Backend.Onvif.Capability.Dto;
+using Eoss.Backend.Onvif.Dto;
 using System.Threading.Tasks;
-using Eoss.Backend.CloudSense.Device.Dto;
+using Eoss.Backend.CloudSense.Dto;
 
-namespace Eoss.Backend.Onvif.Capability
+namespace Eoss.Backend.Onvif
 {
     public interface IOnvifDeviceAppService : IApplicationService
     {

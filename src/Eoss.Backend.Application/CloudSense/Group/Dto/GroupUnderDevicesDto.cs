@@ -1,8 +1,8 @@
-﻿using Abp.Application.Services.Dto;
+﻿using System.ComponentModel.DataAnnotations;
+using Abp.Application.Services.Dto;
 using Abp.AutoMapper;
-using System.ComponentModel.DataAnnotations;
 
-namespace Eoss.Backend.CloudSense.Group.Dto
+namespace Eoss.Backend.CloudSense.Dto
 {
     [AutoMapFrom(typeof(Entities.Group))]
     public class GroupUnderDevicesDto : EntityDto<int>

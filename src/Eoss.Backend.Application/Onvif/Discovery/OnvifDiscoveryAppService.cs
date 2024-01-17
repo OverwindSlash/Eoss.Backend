@@ -1,13 +1,13 @@
 ﻿using Abp.Application.Services;
 using Abp.UI;
-using Eoss.Backend.Domain.Onvif.Discovery;
-using Eoss.Backend.Onvif.Discovery.Dto;
+using Eoss.Backend.Domain.Onvif;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Eoss.Backend.Onvif.Dto;
 
-namespace Eoss.Backend.Onvif.Discovery
+namespace Eoss.Backend.Onvif
 {
     public class OnvifDiscoveryAppService : ApplicationService, IOnvifDiscoveryAppService
     {
@@ -19,12 +19,12 @@ namespace Eoss.Backend.Onvif.Discovery
         }
 
         [HttpGet]
-        public async Task<List<DiscoveredDeviceDto>> DiscoveryDeviceAsync(int timeOutSecs = 1)
+        public async Task<List<DiscoveredDeviceDto>> DiscoveryDeviceAsync(int timeoutSecs = 1)
         {
             try
             {
-                var discoveredDeviceDtos = await _discoveryManager.DiscoveryDeviceAsync(timeOutSecs);
-                return ObjectMapper.Map<List<DiscoveredDeviceDto>>(discoveredDeviceDtos);
+                var discoveredDevices = await _discoveryManager.DiscoveryDeviceAsync(timeoutSecs);
+                return ObjectMapper.Map<List<DiscoveredDeviceDto>>(discoveredDevices);
             }
             catch (Exception e)
             {

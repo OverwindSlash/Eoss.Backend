@@ -1,19 +1,21 @@
-﻿using Abp.Domain.Services;
+﻿using Abp.Dependency;
+using Abp.Domain.Services;
 using Mictlanix.DotNet.Onvif;
 using Mictlanix.DotNet.Onvif.Common;
 using Mictlanix.DotNet.Onvif.Device;
 using Capabilities = Eoss.Backend.Entities.Capabilities;
+using Device = Eoss.Backend.Entities.Device;
 
-namespace Eoss.Backend.Domain.Onvif.Device
+namespace Eoss.Backend.Domain.Onvif
 {
-    public class OnvifDeviceManager : DomainService, IOnvifDeviceManager
+    public class OnvifDeviceManager : DomainService, IOnvifDeviceManager, ISingletonDependency
     {
-        public async Task<Entities.Device> GetDeviceInfoAsync(string host, string username, string password)
+        public async Task<Device> GetDeviceInfoAsync(string host, string username, string password)
         {
-            var onvifDevice = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
-            var response = await onvifDevice.GetDeviceInformationAsync(new GetDeviceInformationRequest());
+            var deviceClient = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
+            var response = await deviceClient.GetDeviceInformationAsync(new GetDeviceInformationRequest());
 
-            var device = new Entities.Device()
+            var device = new Device()
             {
                 DeviceId = response.SerialNumber,
                 Ipv4Address = host,
@@ -31,8 +33,8 @@ namespace Eoss.Backend.Domain.Onvif.Device
 
         private static async Task<Capabilities> DoGetCapabilitiesAsync(string host, string username, string password)
         {
-            var device = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
-            var response = await device.GetCapabilitiesAsync(new CapabilityCategory[] { CapabilityCategory.All });
+            var deviceClient = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
+            var response = await deviceClient.GetCapabilitiesAsync(new CapabilityCategory[] { CapabilityCategory.All });
 
             var capabilities = new Capabilities();
 

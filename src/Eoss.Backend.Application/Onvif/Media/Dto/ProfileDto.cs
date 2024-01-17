@@ -1,11 +1,9 @@
 ﻿using Abp.AutoMapper;
 using Eoss.Backend.Entities;
-using Eoss.Backend.Onvif.Ptz.Dto;
-using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Eoss.Backend.Onvif.Media.Dto
+namespace Eoss.Backend.Onvif.Dto
 {
     [AutoMapFrom(typeof(Profile))]
     public class ProfileDto

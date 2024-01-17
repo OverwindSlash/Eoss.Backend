@@ -1,13 +1,13 @@
-﻿using Abp.Application.Services;
-using Abp.UI;
-using Eoss.Backend.Domain.Onvif.Ptz;
-using Eoss.Backend.Onvif.Ptz.Dto;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Abp.Application.Services;
+using Abp.UI;
+using Eoss.Backend.Domain.Onvif;
+using Eoss.Backend.Onvif.Dto;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Eoss.Backend.Onvif.Ptz
+namespace Eoss.Backend.Onvif
 {
     public class OnvifPtzAppService : ApplicationService, IOnvifPtzAppService
     {

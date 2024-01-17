@@ -1,14 +1,14 @@
 ﻿using Abp.Application.Services;
 using Abp.UI;
-using Eoss.Backend.Domain.Onvif.Media;
-using Eoss.Backend.Onvif.Media.Dto;
+using Eoss.Backend.Domain.Onvif;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eoss.Backend.Onvif.Dto;
 
-namespace Eoss.Backend.Onvif.Media
+namespace Eoss.Backend.Onvif
 {
     public class OnvifMediaAppService : ApplicationService, IOnvifMediaAppService
     {

@@ -1,7 +1,7 @@
 ﻿using Abp.AutoMapper;
 using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.Onvif.Ptz.Dto
+namespace Eoss.Backend.Onvif.Dto
 {
     [AutoMapFrom(typeof(PtzPreset))]
     public class PtzPresetDto

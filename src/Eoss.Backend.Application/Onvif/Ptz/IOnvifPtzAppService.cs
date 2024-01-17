@@ -1,9 +1,9 @@
-﻿using Abp.Application.Services;
-using Eoss.Backend.Onvif.Ptz.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Abp.Application.Services;
+using Eoss.Backend.Onvif.Dto;
 
-namespace Eoss.Backend.Onvif.Ptz
+namespace Eoss.Backend.Onvif
 {
     public interface IOnvifPtzAppService : IApplicationService
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Eoss.Backend.CloudSense.Ptz.Dto
+namespace Eoss.Backend.CloudSense.Dto
 {
     public class PtzStatusInDegreeDto
     {

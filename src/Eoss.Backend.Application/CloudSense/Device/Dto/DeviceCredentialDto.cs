@@ -1,9 +1,9 @@
-﻿using Abp.AutoMapper;
-using Eoss.Backend.Entities;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Abp.AutoMapper;
+using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.CloudSense.Device.Dto
+namespace Eoss.Backend.CloudSense.Dto
 {
     [AutoMap(typeof(Credential))]
     public class DeviceCredentialDto

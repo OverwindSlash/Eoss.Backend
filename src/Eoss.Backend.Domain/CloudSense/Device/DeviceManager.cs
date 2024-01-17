@@ -3,7 +3,7 @@ using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Eoss.Backend.Domain.CloudSense.Device
+namespace Eoss.Backend.Domain.CloudSense
 {
     public class DeviceManager : DomainService, IDeviceManager
     {

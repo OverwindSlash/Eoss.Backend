@@ -1,11 +1,11 @@
-﻿using Abp.Application.Services;
-using Abp.Application.Services.Dto;
-using Eoss.Backend.CloudSense.Device.Dto;
-using Eoss.Backend.Onvif.Media.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Abp.Application.Services;
+using Abp.Application.Services.Dto;
+using Eoss.Backend.CloudSense.Dto;
+using Eoss.Backend.Onvif.Dto;
 
-namespace Eoss.Backend.CloudSense.Device
+namespace Eoss.Backend.CloudSense
 {
     public interface IDeviceAppService : 
         IAsyncCrudAppService<DeviceGetDto, int, PagedResultRequestDto, DeviceSaveDto, DeviceSaveDto>

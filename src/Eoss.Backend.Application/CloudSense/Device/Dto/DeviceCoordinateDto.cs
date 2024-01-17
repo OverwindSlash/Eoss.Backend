@@ -1,10 +1,10 @@
-﻿using Abp.AutoMapper;
-using Eoss.Backend.Entities;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Abp.AutoMapper;
+using Eoss.Backend.Entities;
 
-namespace Eoss.Backend.CloudSense.Device.Dto
+namespace Eoss.Backend.CloudSense.Dto
 {
     [AutoMapFrom(typeof(InstallationParams))]
     public class DeviceCoordinateDto

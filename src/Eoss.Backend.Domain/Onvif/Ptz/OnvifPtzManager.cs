@@ -1,12 +1,13 @@
-﻿using Abp.Domain.Services;
+﻿using Abp.Dependency;
+using Abp.Domain.Services;
 using Eoss.Backend.Entities;
 using Mictlanix.DotNet.Onvif;
 using Mictlanix.DotNet.Onvif.Common;
 using Mictlanix.DotNet.Onvif.Ptz;
 
-namespace Eoss.Backend.Domain.Onvif.Ptz
+namespace Eoss.Backend.Domain.Onvif
 {
-    public class OnvifPtzManager : DomainService, IOnvifPtzManager
+    public class OnvifPtzManager : DomainService, IOnvifPtzManager, ISingletonDependency
     {
         public async Task<List<PtzConfig>> GetConfigurationsAsync(string host, string username, string password)
         {

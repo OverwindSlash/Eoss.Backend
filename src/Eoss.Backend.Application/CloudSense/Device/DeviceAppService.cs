@@ -2,13 +2,11 @@
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.UI;
-using Eoss.Backend.CloudSense.Device.Dto;
-using Eoss.Backend.Domain.CloudSense.Device;
-using Eoss.Backend.Domain.Onvif.Device;
-using Eoss.Backend.Domain.Onvif.Discovery;
-using Eoss.Backend.Domain.Onvif.Media;
+using Eoss.Backend.CloudSense.Dto;
+using Eoss.Backend.Domain.CloudSense;
+using Eoss.Backend.Domain.Onvif;
 using Eoss.Backend.Entities;
-using Eoss.Backend.Onvif.Media.Dto;
+using Eoss.Backend.Onvif.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -17,7 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Eoss.Backend.CloudSense.Device
+namespace Eoss.Backend.CloudSense
 {
     public class DeviceAppService : 
         AsyncCrudAppService<Entities.Device, DeviceGetDto, int, PagedResultRequestDto, DeviceSaveDto, DeviceSaveDto>, 

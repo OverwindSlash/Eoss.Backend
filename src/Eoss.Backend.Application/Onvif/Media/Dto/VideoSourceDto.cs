@@ -1,4 +1,4 @@
-﻿namespace Eoss.Backend.Onvif.Media.Dto
+﻿namespace Eoss.Backend.Onvif.Dto
 {
     public class VideoSourceDto
     {
