@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Abp.UI;
 using Eoss.Backend.Domain.Onvif;
 using Eoss.Backend.Onvif.Dto;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Eoss.Backend.Onvif
 {
@@ -51,8 +51,8 @@ namespace Eoss.Backend.Onvif
         {
             try
             {
-                var ptzStatus = await _ptzManager.AbsoluteMoveAsync(host, username, password, profileToken, pan, tilt, zoom,
-                    panSpeed, tiltSpeed, zoomSpeed);
+                var ptzStatus = await _ptzManager.AbsoluteMoveAsync(host, username, password, profileToken, 
+                    pan, tilt, zoom, panSpeed, tiltSpeed, zoomSpeed);
                 return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
             }
             catch (Exception e)
@@ -66,8 +66,8 @@ namespace Eoss.Backend.Onvif
         {
             try
             {
-                var ptzStatus = await _ptzManager.RelativeMoveAsync(host, username, password, profileToken, pan, tilt, zoom,
-                    panSpeed, tiltSpeed, zoomSpeed);
+                var ptzStatus = await _ptzManager.RelativeMoveAsync(host, username, password, profileToken, 
+                    pan, tilt, zoom, panSpeed, tiltSpeed, zoomSpeed);
                 return ObjectMapper.Map<PtzStatusDto>(ptzStatus);
             }
             catch (Exception e)
@@ -81,7 +81,8 @@ namespace Eoss.Backend.Onvif
         {
             try
             {
-                await _ptzManager.ContinuousMoveAsync(host, username, password, profileToken, panSpeed, tiltSpeed, zoomSpeed);
+                await _ptzManager.ContinuousMoveAsync(host, username, password, profileToken, 
+                    panSpeed, tiltSpeed, zoomSpeed);
             }
             catch (Exception e)
             {

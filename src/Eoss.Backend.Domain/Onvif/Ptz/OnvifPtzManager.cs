@@ -14,155 +14,12 @@ namespace Eoss.Backend.Domain.Onvif
             return await DoGetPtzConfigAsync(host, username, password);
         }
 
-        public async Task<PtzStatus> GetStatusAsync(string host, string username, string password, string profileToken)
-        {
-            return await DoGetStatusAsync(host, username, password, profileToken);
-        }
-
-        public async Task<PtzStatus> AbsoluteMoveAsync(string host, string username, string password, string profileToken, 
-            float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            await ptz.AbsoluteMoveAsync(profileToken, new PTZVector
-            {
-                PanTilt = new Vector2D
-                {
-                    x = pan,
-                    y = tilt
-                },
-                Zoom = new Vector1D
-                {
-                    x = zoom
-                }
-            }, new PTZSpeed
-            {
-                PanTilt = new Vector2D
-                {
-                    x = panSpeed,
-                    y = tiltSpeed
-                },
-                Zoom = new Vector1D
-                {
-                    x = zoomSpeed
-                }
-            });
-
-            return await GetStoppedPositionAsync(profileToken, ptz);
-        }
-
-        public async Task<PtzStatus> RelativeMoveAsync(string host, string username, string password, string profileToken, float pan, float tilt,
-            float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            await ptz.RelativeMoveAsync(profileToken, new PTZVector
-            {
-                PanTilt = new Vector2D
-                {
-                    x = pan,
-                    y = tilt
-                },
-                Zoom = new Vector1D
-                {
-                    x = zoom
-                }
-            }, new PTZSpeed
-            {
-                PanTilt = new Vector2D
-                {
-                    x = panSpeed,
-                    y = tiltSpeed
-                },
-                Zoom = new Vector1D
-                {
-                    x = zoomSpeed
-                }
-            });
-
-            return await GetStoppedPositionAsync(profileToken, ptz);
-        }
-
-        public async Task ContinuousMoveAsync(string host, string username, string password, string profileToken, float panSpeed,
-            float tiltSpeed, float zoomSpeed)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            await ptz.ContinuousMoveAsync(profileToken, new PTZSpeed
-            {
-                PanTilt = new Vector2D
-                {
-                    x = panSpeed,
-                    y = tiltSpeed
-                },
-                Zoom = new Vector1D
-                {
-                    x = zoomSpeed
-                }
-
-            }, null);
-        }
-
-        public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            await ptz.StopAsync(profileToken, stopPan, stopZoom);
-
-            return await GetStoppedPositionAsync(profileToken, ptz);
-        }
-
-        public async Task<List<PtzPreset>> GetPresetsAsync(string host, string username, string password, string profileToken)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            var response = await ptz.GetPresetsAsync(profileToken);
-
-            List<PtzPreset> presets = response.Preset.Select(preset => new PtzPreset()
-                {
-                    Name = preset.Name,
-                    Token = preset.token,
-                    PanPosition = preset.PTZPosition.PanTilt.x,
-                    TiltPosition = preset.PTZPosition.PanTilt.y,
-                    PanTiltSpace = preset.PTZPosition.PanTilt.space,
-                    ZoomPosition = preset.PTZPosition.Zoom.x,
-                    ZoomSpace = preset.PTZPosition.Zoom.space
-                }).ToList();
-
-            return presets;
-        }
-
-        public async Task<PtzStatus> GotoPresetAsync(string host, string username, string password, string profileToken, 
-            string presetToken, float panSpeed, float tiltSpeed, float zoomSpeed)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            await ptz.GotoPresetAsync(profileToken, presetToken, new PTZSpeed
-            {
-                PanTilt = new Vector2D
-                {
-                    x = panSpeed,
-                    y = tiltSpeed
-                },
-                Zoom = new Vector1D
-                {
-                    x = zoomSpeed
-                }
-            });
-
-            return await GetStoppedPositionAsync(profileToken, ptz);
-        }
-
-        public async Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken,
-            string presetName)
-        {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-
-            var newPreset = await ptz.SetPresetAsync(new SetPresetRequest(profileToken, presetName, presetToken));
-
-            return newPreset.PresetToken;
-        }
-
         private static async Task<List<PtzConfig>> DoGetPtzConfigAsync(string host, string username, string password)
         {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            var response = await ptz.GetConfigurationsAsync();
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var response = await ptzClient.GetConfigurationsAsync();
 
-            List<PtzConfig> ptzConfigs = new ();
+            List<PtzConfig> ptzConfigs = new();
 
             foreach (var config in response.PTZConfiguration)
             {
@@ -175,7 +32,7 @@ namespace Eoss.Backend.Domain.Onvif
                     DefaultRelativeZoomTranslationSpace = config.DefaultRelativeZoomTranslationSpace,
                     DefaultContinuousPanTiltVelocitySpace = config.DefaultContinuousPanTiltVelocitySpace,
                     DefaultContinuousZoomVelocitySpace = config.DefaultContinuousZoomVelocitySpace,
-                    
+
                     DefaultPTZTimeout = config.DefaultPTZTimeout,
 
                     MoveRamp = config.MoveRamp,
@@ -206,19 +63,19 @@ namespace Eoss.Backend.Domain.Onvif
                 // PTZ limit
                 if (config.PanTiltLimits != null)
                 {
-                    if ((config.PanTiltLimits.Range != null) && (config.PanTiltLimits.Range.XRange != null))
+                    if (config.PanTiltLimits.Range != null && config.PanTiltLimits.Range.XRange != null)
                     {
                         ptzConfig.PanMinLimit = config.PanTiltLimits.Range.XRange.Min;
                         ptzConfig.PanMaxLimit = config.PanTiltLimits.Range.XRange.Max;
                     }
 
-                    if ((config.PanTiltLimits.Range != null) && (config.PanTiltLimits.Range.YRange != null))
+                    if (config.PanTiltLimits.Range != null && config.PanTiltLimits.Range.YRange != null)
                     {
                         ptzConfig.TiltMinLimit = config.PanTiltLimits.Range.YRange.Min;
                         ptzConfig.TiltMaxLimit = config.PanTiltLimits.Range.YRange.Max;
                     }
 
-                    if ((config.ZoomLimits.Range != null) && (config.ZoomLimits.Range.XRange != null))
+                    if (config.ZoomLimits.Range != null && config.ZoomLimits.Range.XRange != null)
                     {
                         ptzConfig.ZoomMinLimit = config.ZoomLimits.Range.XRange.Min;
                         ptzConfig.ZoomMaxLimit = config.ZoomLimits.Range.XRange.Max;
@@ -231,10 +88,15 @@ namespace Eoss.Backend.Domain.Onvif
             return ptzConfigs;
         }
 
+        public async Task<PtzStatus> GetStatusAsync(string host, string username, string password, string profileToken)
+        {
+            return await DoGetStatusAsync(host, username, password, profileToken);
+        }
+
         private static async Task<PtzStatus> DoGetStatusAsync(string host, string username, string password, string profileToken)
         {
-            var ptz = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
-            var response = await ptz.GetStatusAsync(profileToken);
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var response = await ptzClient.GetStatusAsync(profileToken);
 
             var ptzStatus = new PtzStatus()
             {
@@ -255,14 +117,45 @@ namespace Eoss.Backend.Domain.Onvif
             return ptzStatus;
         }
 
-        private static async Task<PtzStatus> GetStoppedPositionAsync(string profileToken, PTZClient ptz)
+        public async Task<PtzStatus> AbsoluteMoveAsync(string host, string username, string password, string profileToken, 
+            float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptzClient.AbsoluteMoveAsync(profileToken, new PTZVector
+            {
+                PanTilt = new Vector2D
+                {
+                    x = pan,
+                    y = tilt
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoom
+                }
+            }, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+            });
+
+            return await GetStoppedPositionAsync(profileToken, ptzClient);
+        }
+
+        private static async Task<PtzStatus> GetStoppedPositionAsync(string profileToken, PTZClient ptzClient)
         {
             try
             {
                 while (true)
                 {
-                    var response = await ptz.GetStatusAsync(profileToken);
-                    if ((response.MoveStatus.PanTilt != MoveStatus.IDLE) || (response.MoveStatus.Zoom != MoveStatus.IDLE))
+                    var response = await ptzClient.GetStatusAsync(profileToken);
+                    if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
                     {
                         continue;
                     }
@@ -289,6 +182,113 @@ namespace Eoss.Backend.Domain.Onvif
             {
                 return new PtzStatus();
             }
+        }
+
+        public async Task<PtzStatus> RelativeMoveAsync(string host, string username, string password, string profileToken, 
+            float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptzClient.RelativeMoveAsync(profileToken, new PTZVector
+            {
+                PanTilt = new Vector2D
+                {
+                    x = pan,
+                    y = tilt
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoom
+                }
+            }, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+            });
+
+            return await GetStoppedPositionAsync(profileToken, ptzClient);
+        }
+
+        public async Task ContinuousMoveAsync(string host, string username, string password, string profileToken, 
+            float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptzClient.ContinuousMoveAsync(profileToken, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+
+            }, null);
+        }
+
+        public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptzClient.StopAsync(profileToken, stopPan, stopZoom);
+
+            return await GetStoppedPositionAsync(profileToken, ptzClient);
+        }
+
+        public async Task<List<PtzPreset>> GetPresetsAsync(string host, string username, string password, string profileToken)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var response = await ptzClient.GetPresetsAsync(profileToken);
+
+            List<PtzPreset> presets = response.Preset.Select(preset => new PtzPreset()
+                {
+                    Name = preset.Name,
+                    Token = preset.token,
+                    PanPosition = preset.PTZPosition.PanTilt.x,
+                    TiltPosition = preset.PTZPosition.PanTilt.y,
+                    PanTiltSpace = preset.PTZPosition.PanTilt.space,
+                    ZoomPosition = preset.PTZPosition.Zoom.x,
+                    ZoomSpace = preset.PTZPosition.Zoom.space
+                }).ToList();
+
+            return presets;
+        }
+
+        public async Task<PtzStatus> GotoPresetAsync(string host, string username, string password, string profileToken, 
+            string presetToken, float panSpeed, float tiltSpeed, float zoomSpeed)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            await ptzClient.GotoPresetAsync(profileToken, presetToken, new PTZSpeed
+            {
+                PanTilt = new Vector2D
+                {
+                    x = panSpeed,
+                    y = tiltSpeed
+                },
+                Zoom = new Vector1D
+                {
+                    x = zoomSpeed
+                }
+            });
+
+            return await GetStoppedPositionAsync(profileToken, ptzClient);
+        }
+
+        public async Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken,
+            string presetName)
+        {
+            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+
+            var newPreset = await ptzClient.SetPresetAsync(new SetPresetRequest(profileToken, presetName, presetToken));
+
+            return newPreset.PresetToken;
         }
     }
 }

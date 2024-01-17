@@ -13,13 +13,12 @@ namespace Eoss.Backend.Domain.Onvif
             return await DoGetProfilesAsync(host, username, password);
         }
 
-        private async Task<List<Profile>> DoGetProfilesAsync(string host, string username, string password)
+        private static async Task<List<Profile>> DoGetProfilesAsync(string host, string username, string password)
         {
-            var media = await OnvifClientFactory.CreateMediaClientAsync(host, username, password);
-            var response = await media.GetProfilesAsync();
+            var mediaClient = await OnvifClientFactory.CreateMediaClientAsync(host, username, password);
+            var response = await mediaClient.GetProfilesAsync();
 
             List<Profile> profiles = new ();
-
             foreach (var onvifProfile in response.Profiles)
             {
                 var profile = new Profile()
@@ -67,7 +66,7 @@ namespace Eoss.Backend.Domain.Onvif
                     }
                 };
 
-                var streamUri = await media.GetStreamUriAsync(streamSetup, profile.Token);
+                var streamUri = await mediaClient.GetStreamUriAsync(streamSetup, profile.Token);
                 if (streamUri != null)
                 {
                     profile.StreamUri = streamUri.Uri;
@@ -79,7 +78,6 @@ namespace Eoss.Backend.Domain.Onvif
                 {
                     profile.AudioSourceToken = audioSourceConfig.SourceToken;
                 }
-                
 
                 // AudioEncoderConfiguration
                 var audioEncoderConfig = onvifProfile.AudioEncoderConfiguration;

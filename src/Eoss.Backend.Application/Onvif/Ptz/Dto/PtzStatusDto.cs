@@ -1,6 +1,6 @@
-﻿using System;
-using Abp.AutoMapper;
+﻿using Abp.AutoMapper;
 using Eoss.Backend.Entities;
+using System;
 
 namespace Eoss.Backend.Onvif.Dto
 {

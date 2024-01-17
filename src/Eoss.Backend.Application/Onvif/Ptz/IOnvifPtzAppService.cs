@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Abp.Application.Services;
+﻿using Abp.Application.Services;
 using Eoss.Backend.Onvif.Dto;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Eoss.Backend.Onvif
 {
@@ -21,8 +21,9 @@ namespace Eoss.Backend.Onvif
             bool stopPan, bool stopZoom);
 
         Task<List<PtzPresetDto>> GetPresetsAsync(string host, string username, string password, string profileToken);
-        Task<PtzStatusDto> GotoPresetAsync(string host, string username, string password, string profileToken, string presetToken,
-            float panSpeed, float tiltSpeed, float zoomSpeed);
-        Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken, string presetName);
+        Task<PtzStatusDto> GotoPresetAsync(string host, string username, string password, string profileToken, 
+            string presetToken, float panSpeed, float tiltSpeed, float zoomSpeed);
+        Task<string> SetPresetAsync(string host, string username, string password, string profileToken, 
+            string presetToken, string presetName);
     }
 }

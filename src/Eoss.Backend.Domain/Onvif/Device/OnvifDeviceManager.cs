@@ -12,6 +12,11 @@ namespace Eoss.Backend.Domain.Onvif
     {
         public async Task<Device> GetDeviceInfoAsync(string host, string username, string password)
         {
+            return await DoGetDeviceInfoAsync(host, username, password);
+        }
+
+        private static async Task<Device> DoGetDeviceInfoAsync(string host, string username, string password)
+        {
             var deviceClient = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
             var response = await deviceClient.GetDeviceInformationAsync(new GetDeviceInformationRequest());
 
@@ -34,7 +39,7 @@ namespace Eoss.Backend.Domain.Onvif
         private static async Task<Capabilities> DoGetCapabilitiesAsync(string host, string username, string password)
         {
             var deviceClient = await OnvifClientFactory.CreateDeviceClientAsync(host, username, password);
-            var response = await deviceClient.GetCapabilitiesAsync(new CapabilityCategory[] { CapabilityCategory.All });
+            var response = await deviceClient.GetCapabilitiesAsync([CapabilityCategory.All]);
 
             var capabilities = new Capabilities();
 
@@ -48,11 +53,14 @@ namespace Eoss.Backend.Domain.Onvif
             if (deviceCapability != null)
             {
                 capabilities.DeviceXAddress = deviceCapability.XAddr;
-   
-                capabilities.SupportedOnvifVersions = new List<string>();
-                foreach (OnvifVersion onvifVersion in deviceCapability.System.SupportedVersions)
+
+                if (deviceCapability.System != null && deviceCapability.System.SupportedVersions != null)
                 {
-                    capabilities.SupportedOnvifVersions.Add($"{onvifVersion.Major}.{onvifVersion.Minor}");
+                    capabilities.SupportedOnvifVersions = new();
+                    foreach (var version in deviceCapability.System.SupportedVersions)
+                    {
+                        capabilities.SupportedOnvifVersions.Add($"{version.Major}.{version.Minor}");
+                    }
                 }
             }
 

@@ -1,12 +1,12 @@
 ﻿using Abp.Application.Services;
 using Abp.UI;
 using Eoss.Backend.Domain.Onvif;
+using Eoss.Backend.Onvif.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Eoss.Backend.Onvif.Dto;
 
 namespace Eoss.Backend.Onvif
 {

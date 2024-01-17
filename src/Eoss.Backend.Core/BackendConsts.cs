@@ -11,7 +11,7 @@ namespace Eoss.Backend
         public const bool MultiTenancyEnabled = true;
 
         public const int MinStringIdLength = 1;
-        public const int MaxStringIdLength = 20;
+        public const int MaxStringIdLength = 100;
 
         public const int MinNameLength = 1;
         public const int MaxNameLength = 100;
