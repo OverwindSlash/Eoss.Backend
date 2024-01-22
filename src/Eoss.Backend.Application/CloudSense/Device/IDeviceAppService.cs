@@ -28,7 +28,7 @@ namespace Eoss.Backend.CloudSense
 
         Task<List<ProfileGetDto>> GetProfilesAsync(string deviceId, bool forceRefresh);
 
-        Task<List<VideoSourceDto>> GetVideoSourcesAsync(string deviceId, string profileToken);
+        Task<VideoSourceDto> GetVideoSourcesAsync(string deviceId, string profileToken);
 
         Task<DeviceCoordinateDto> GetDeviceCoordinateAsync(string deviceId);
     }

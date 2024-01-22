@@ -34,12 +34,10 @@ namespace Eoss.Backend.Onvif
         }
 
         [HttpGet]
-        public async Task<List<VideoSourceDto>> GetVideoSourcesAsync(string host, string username, string password, string profileToken)
+        public async Task<VideoSourceDto> GetVideoSourcesAsync(string host, string username, string password, string profileToken)
         {
             try
             {
-                List<VideoSourceDto> videoSourceDtos = new();
-
                 var profiles = await _mediaManager.GetProfilesAsync(host, username, password);
                 var profile = profiles.SingleOrDefault(p => p.Token == profileToken);
                 if (profile != null)
@@ -53,10 +51,10 @@ namespace Eoss.Backend.Onvif
                         Framerate = profile.FrameRate
                     };
 
-                    videoSourceDtos.Add(videoSourceDto);
+                    return videoSourceDto;
                 }
 
-                return videoSourceDtos;
+                return null;
             }
             catch (Exception e)
             {

@@ -4,6 +4,7 @@ using Abp.Domain.Repositories;
 using Abp.UI;
 using Eoss.Backend.CloudSense.Dto;
 using Eoss.Backend.Domain.CloudSense;
+using Eoss.Backend.Domain.EasyDarwin;
 using Eoss.Backend.Domain.Onvif;
 using Eoss.Backend.Entities;
 using Eoss.Backend.Onvif.Dto;
@@ -25,6 +26,7 @@ namespace Eoss.Backend.CloudSense
         private readonly IRepository<Device> _deviceRepository;
         private readonly IRepository<Group> _groupRepository;
         private readonly IDeviceManager _deviceManager;
+        private readonly IEasyDarwinManager _easyDarwinManager;
         private readonly IOnvifDeviceManager _onvifDeviceManager;
         private readonly IOnvifMediaManager _mediaManager;
 
@@ -32,6 +34,7 @@ namespace Eoss.Backend.CloudSense
             IRepository<Device> deviceRepository,
             IRepository<Group> groupRepository,
             IDeviceManager deviceManager,
+            IEasyDarwinManager easyDarwinManager,
             IOnvifDeviceManager onvifDeviceManager,
             IOnvifMediaManager mediaManager) : base(deviceRepository)
         {
@@ -39,6 +42,7 @@ namespace Eoss.Backend.CloudSense
             _deviceRepository = deviceRepository;
             _groupRepository = groupRepository;
             _deviceManager = deviceManager;
+            _easyDarwinManager = easyDarwinManager;
             _onvifDeviceManager = onvifDeviceManager;
             _mediaManager = mediaManager;
 
@@ -95,14 +99,6 @@ namespace Eoss.Backend.CloudSense
                 .Include(device => device.Profiles)
                 .ThenInclude(profile => profile.PtzParams);
         }
-
-        // private IIncludableQueryable<Device, Group> CreateDeviceQueryable()
-        // {
-        //     return _deviceRepository.GetAll()
-        //         .Include(device => device.Profiles)
-        //         .ThenInclude(profile => profile.PtzParams)
-        //         .Include(device => device.Group);
-        // }
 
         public async Task<DeviceGetDto> AddDeviceByIpAndCredentialAsync(string host, string username, string password)
         {
@@ -406,7 +402,7 @@ namespace Eoss.Backend.CloudSense
             return device;
         }
 
-        public async Task<List<VideoSourceDto>> GetVideoSourcesAsync(string deviceId, string profileToken)
+        public async Task<VideoSourceDto> GetVideoSourcesAsync(string deviceId, string profileToken)
         {
             try
             {
@@ -414,8 +410,6 @@ namespace Eoss.Backend.CloudSense
 
                 var device = await GetDeviceWithProfilesByDeviceId(deviceId);
                 var credential = await GetCredentialByDeviceId(deviceId);
-
-                List<VideoSourceDto> videoSourceDtos = new();
 
                 var profiles = await _mediaManager.GetProfilesAsync(device.Ipv4Address, credential.Username, credential.Password);
                 var profile = profiles.SingleOrDefault(p => p.Token == profileToken);
@@ -432,15 +426,30 @@ namespace Eoss.Backend.CloudSense
                         Framerate = profile.FrameRate
                     };
 
-                    videoSourceDtos.Add(videoSourceDto);
+                    videoSourceDto.ServerStreamUri = await GenerateServerStreamingUri(videoSourceDto, device);
+
+                    return videoSourceDto;
                 }
 
-                return videoSourceDtos;
+                return null;
             }
             catch (Exception e)
             {
                 throw new UserFriendlyException(e.Message);
             }
+        }
+
+        private async Task<string> GenerateServerStreamingUri(VideoSourceDto videoSourceDto, Device device)
+        {
+            string fullUri = videoSourceDto.StreamUri.Replace("rtsp://",
+                $"rtsp://{videoSourceDto.Username}:{videoSourceDto.Password}@");
+
+            var streamingId = await _easyDarwinManager.StartStreaming(fullUri, device.DeviceId,
+                "TCP", 10, 1);
+
+            var serverStreamingUri = await _easyDarwinManager.GetStreamingUri(streamingId);
+
+            return serverStreamingUri;
         }
 
         public async Task<DeviceCoordinateDto> GetDeviceCoordinateAsync(string deviceId)

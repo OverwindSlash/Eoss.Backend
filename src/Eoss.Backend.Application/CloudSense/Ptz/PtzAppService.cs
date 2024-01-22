@@ -200,21 +200,6 @@ namespace Eoss.Backend.CloudSense
             }
         }
 
-        private static double CalculateFov(PtzParams ptzParams, PtzStatusInDegreeDto ptzStatusInDegreeDto)
-        {
-            var ccdDiagonal = Math.Sqrt(ptzParams.SensorWidth * ptzParams.SensorWidth + ptzParams.SensorHeight * ptzParams.SensorHeight);
-
-            var ccdWidth = ptzParams.SensorWidth;
-
-            var currentFocal = ptzStatusInDegreeDto.ZoomPosition * ptzParams.FocalLength;
-
-            var fovInRadian = 2 * Math.Atan(ccdWidth / (2 * currentFocal));
-
-            var fovInDegree = fovInRadian * (180 / Math.PI);
-
-            return fovInDegree;
-        }
-
         private static PtzStatusInDegreeDto ConvertToDegree(PtzParams ptzParams, PtzStatus ptzStatus)
         {
             var ptzStatusInDegreeDto = new PtzStatusInDegreeDto()

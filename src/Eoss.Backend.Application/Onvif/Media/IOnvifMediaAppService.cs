@@ -8,6 +8,6 @@ namespace Eoss.Backend.Onvif
     public interface IOnvifMediaAppService : IApplicationService
     {
         Task<List<ProfileDto>> GetProfilesAsync(string host, string username, string password);
-        Task<List<VideoSourceDto>> GetVideoSourcesAsync(string host, string username, string password, string profileToken);
+        Task<VideoSourceDto> GetVideoSourcesAsync(string host, string username, string password, string profileToken);
     }
 }
