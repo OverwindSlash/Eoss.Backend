@@ -189,12 +189,30 @@ namespace Eoss.Backend.CloudSense
                 var ptzStatus = await _ptzManager.GetStatusAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken);
                 var ptzStatusInDegreeDto = ConvertToDegree(ptzParams, ptzStatus);
 
+                ptzStatusInDegreeDto.Fov = ptzParams.CalculateFov(ptzStatusInDegreeDto.ZoomPosition);
+                ptzStatusInDegreeDto.Distance = ptzParams.CalculateMaxDistance(ptzStatusInDegreeDto.ZoomPosition);
+
                 return ptzStatusInDegreeDto;
             }
             catch (Exception e)
             {
                 throw new UserFriendlyException(e.Message);
             }
+        }
+
+        private static double CalculateFov(PtzParams ptzParams, PtzStatusInDegreeDto ptzStatusInDegreeDto)
+        {
+            var ccdDiagonal = Math.Sqrt(ptzParams.SensorWidth * ptzParams.SensorWidth + ptzParams.SensorHeight * ptzParams.SensorHeight);
+
+            var ccdWidth = ptzParams.SensorWidth;
+
+            var currentFocal = ptzStatusInDegreeDto.ZoomPosition * ptzParams.FocalLength;
+
+            var fovInRadian = 2 * Math.Atan(ccdWidth / (2 * currentFocal));
+
+            var fovInDegree = fovInRadian * (180 / Math.PI);
+
+            return fovInDegree;
         }
 
         private static PtzStatusInDegreeDto ConvertToDegree(PtzParams ptzParams, PtzStatus ptzStatus)

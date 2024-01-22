@@ -140,5 +140,31 @@ namespace Eoss.Backend.Entities
 
             return zoomOffset + MinZoomLevel;
         }
+
+        public float CalculateFov(float zoomPosition)
+        {
+            var ccdDiagonal = Math.Sqrt(SensorWidth * SensorWidth + SensorHeight * SensorHeight);
+
+            var currentFocal = zoomPosition * FocalLength;
+
+            var fovInRadian = 2 * Math.Atan(SensorWidth / (2 * currentFocal));
+
+            var fovInDegree = fovInRadian * (180 / Math.PI);
+
+            return (float)fovInDegree;
+        }
+
+        public float CalculateMaxDistance(float zoomPosition)
+        {
+            float realObjectWidthInMm = 1000;
+            float realObjectHeightInMm = 1000;
+            float realObjectWidthInPixel = 40;
+            var currentFocal = zoomPosition * FocalLength;
+
+            float maxDistance = realObjectHeightInMm * currentFocal * realObjectWidthInPixel /
+                                (SensorHeight * realObjectWidthInMm);
+
+            return maxDistance;
+        }
     }
 }
