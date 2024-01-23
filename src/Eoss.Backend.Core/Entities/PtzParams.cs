@@ -8,9 +8,9 @@ namespace Eoss.Backend.Entities
     public class PtzParams : Entity<int>
     {
         // Home position
-        [DisplayName("Home Pan To North")]
+        [DisplayName("Home Pan To East")]
         [Required, Range(-180.0, 180.0)]
-        public double HomePanToNorth { get; set; }
+        public double HomePanToEast { get; set; }
 
         [DisplayName("Home Tilt To Horizon")]
         [Required, Range(-90.0, 90.0)]

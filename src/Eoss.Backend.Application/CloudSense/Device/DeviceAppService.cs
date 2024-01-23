@@ -318,6 +318,17 @@ namespace Eoss.Backend.CloudSense
                 var device = await GetDeviceWithInstallationParamsByDeviceIdAsync(input.DeviceId);
                 device.InstallationParams.CopyFrom(installationParams);
 
+                foreach (var profile in device.Profiles)
+                {
+                    if (profile.PtzParams == null)
+                    {
+                        continue;
+                    }
+
+                    profile.PtzParams.HomePanToEast = device.InstallationParams.HomePanToEast;
+                    profile.PtzParams.HomeTiltToHorizon = device.InstallationParams.HomeTiltToHorizon;
+                }
+
                 await _deviceRepository.UpdateAsync(device);
             }
             catch (Exception e)
@@ -330,6 +341,8 @@ namespace Eoss.Backend.CloudSense
         {
             var device = await _deviceRepository.GetAll()
                 .Include(device => device.InstallationParams)
+                .Include(device => device.Profiles)
+                .ThenInclude(profile => profile.PtzParams)
                 .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
             if (device == null)
             {

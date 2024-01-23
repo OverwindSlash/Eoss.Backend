@@ -19,6 +19,14 @@ namespace Eoss.Backend.Entities
         [Required, Range(0, Double.MaxValue)]
         public double Altitude { get; set; }
 
+        [DisplayName("Home Pan To East")]
+        [Required, Range(-180.0, 180.0)]
+        public float HomePanToEast { get; set; }
+
+        [DisplayName("Home Tilt To Horizon")]
+        [Required, Range(-180.0, 180.0)]
+        public float HomeTiltToHorizon { get; set; }
+
         [DisplayName("Roll")]
         [Required, Range(-180.0, 180.0)]
         public double Roll { get; set; }
@@ -36,9 +44,22 @@ namespace Eoss.Backend.Entities
             Longitude = othrer.Longitude;
             Latitude = othrer.Latitude;
             Altitude = othrer.Altitude;
+            HomePanToEast = othrer.HomePanToEast;
+            HomeTiltToHorizon = othrer.HomeTiltToHorizon;
             Roll = othrer.Roll;
             Pitch = othrer.Pitch;
             Yaw = othrer.Yaw;
+        }
+
+        public float CalculateAzimuthToEast(float panInDegree)
+        {
+            var adjustedPanInDegree = panInDegree + HomePanToEast;
+            if (adjustedPanInDegree < 0)
+            {
+                adjustedPanInDegree += 360;
+            }
+
+            return (float)adjustedPanInDegree;
         }
     }
 }

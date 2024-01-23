@@ -7,12 +7,12 @@ namespace Eoss.Backend.Onvif.Dto
     [AutoMapFrom(typeof(PtzParams))]
     public class PtzParamsGetDto
     {
-        // Home position
-        [DisplayName("Home Pan To North")]
-        public double HomePanToNorth { get; set; }
+        // Home position (Copy from InstallationParams)
+        [DisplayName("Home Pan To East")]
+        public float HomePanToEast { get; set; }
 
         [DisplayName("Home Tilt To Horizon")]
-        public double HomeTiltToHorizon { get; set; }
+        public float HomeTiltToHorizon { get; set; }
 
         // Device limit
         [DisplayName("Minimum Pan Degree")]

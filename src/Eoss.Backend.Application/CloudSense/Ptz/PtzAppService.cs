@@ -38,7 +38,7 @@ namespace Eoss.Backend.CloudSense
                 var device = await GetDeviceWithProfilesByDeviceId(deviceId);
                 var profile = GetDeviceProfile(device, profileToken);
 
-                profile.PtzParams.HomePanToNorth = input.HomePanToNorth;
+                profile.PtzParams.HomePanToEast = input.HomePanToEast;
                 profile.PtzParams.HomeTiltToHorizon = input.HomeTiltToHorizon;
                 profile.PtzParams.MinPanDegree = input.MinPanDegree;
                 profile.PtzParams.MaxPanDegree = input.MaxPanDegree;
@@ -61,6 +61,7 @@ namespace Eoss.Backend.CloudSense
         private async Task<Device> GetDeviceWithProfilesByDeviceId(string deviceId)
         {
             var device = await _deviceRepository.GetAll()
+                .Include(device => device.InstallationParams)
                 .Include(device => device.Profiles)
                 .ThenInclude(profile => profile.PtzParams)
                 .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
@@ -94,6 +95,7 @@ namespace Eoss.Backend.CloudSense
                 var profile = GetDeviceProfile(device, profileToken);
 
                 var ptzParamsGetDto = ObjectMapper.Map<PtzParamsGetDto>(profile.PtzParams);
+
                 return ptzParamsGetDto;
             }
             catch (Exception e)
@@ -191,6 +193,7 @@ namespace Eoss.Backend.CloudSense
 
                 ptzStatusInDegreeDto.Fov = ptzParams.CalculateFov(ptzStatusInDegreeDto.ZoomPosition);
                 ptzStatusInDegreeDto.Distance = ptzParams.CalculateMaxDistance(ptzStatusInDegreeDto.ZoomPosition);
+                ptzStatusInDegreeDto.Direction = device.InstallationParams.CalculateAzimuthToEast(ptzStatusInDegreeDto.PanPosition);
 
                 return ptzStatusInDegreeDto;
             }

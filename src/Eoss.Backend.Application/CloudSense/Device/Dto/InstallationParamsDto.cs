@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Abp.AutoMapper;
+using Eoss.Backend.Entities;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Abp.AutoMapper;
-using Eoss.Backend.Entities;
 
 namespace Eoss.Backend.CloudSense.Dto
 {
@@ -20,6 +20,14 @@ namespace Eoss.Backend.CloudSense.Dto
         [DisplayName("Altitude")]
         [Required, Range(0, Double.MaxValue)]
         public double Altitude { get; set; }
+
+        [DisplayName("Home Pan To East")]
+        [Required, Range(-180.0, 180.0)]
+        public float HomePanToEast { get; set; }
+
+        [DisplayName("Home Tilt To Horizon")]
+        [Required, Range(-180.0, 180.0)]
+        public float HomeTiltToHorizon { get; set; }
 
         [DisplayName("Roll")]
         [Required, Range(-180.0, 180.0)]

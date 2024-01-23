@@ -9,6 +9,7 @@ namespace Eoss.Backend.CloudSense.Dto
         public float ZoomPosition { get; set; }
         public float Distance { get; set; }
         public float Fov { get; set; }
+        public float Direction { get; set; }
         public string PanTiltStatus { get; set; }
         public string ZoomStatus { get; set; }
         public DateTime UtcDateTime { get; set; }

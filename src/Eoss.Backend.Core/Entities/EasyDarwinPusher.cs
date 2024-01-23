@@ -9,9 +9,9 @@
     public class EasyDarwinPusher
     {
         public string id { get; set; }
-        public int inBytes { get; set; }
+        public long inBytes { get; set; }
         public int onlines { get; set; }
-        public int outBytes { get; set; }
+        public long outBytes { get; set; }
         public string path { get; set; }
         public string source { get; set; }
         public string startAt { get; set; }

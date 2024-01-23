@@ -1,5 +1,4 @@
 ﻿using Abp.Domain.Services;
-using System;
 
 namespace Eoss.Backend.Domain.EasyDarwin
 {

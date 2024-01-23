@@ -8,8 +8,8 @@ namespace Eoss.Backend.Onvif.Dto
     public class PtzParamsSaveDto
     {
         // Home position
-        [DisplayName("Home Pan To North")]
-        public double HomePanToNorth { get; set; }
+        [DisplayName("Home Pan To East")]
+        public double HomePanToEast { get; set; }
 
         [DisplayName("Home Tilt To Horizon")]
         public double HomeTiltToHorizon { get; set; }
