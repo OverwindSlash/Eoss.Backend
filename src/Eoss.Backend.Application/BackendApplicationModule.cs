@@ -1,8 +1,14 @@
 ﻿using Abp.AutoMapper;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
+
 using Eoss.Backend.Authorization;
+using Eoss.Backend.Configuration;
 using Eoss.Backend.Domain;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+
 
 namespace Eoss.Backend
 {

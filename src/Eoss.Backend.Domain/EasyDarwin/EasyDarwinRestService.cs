@@ -1,17 +1,22 @@
-﻿using Eoss.Backend.Domain.RestService;
-using System.Collections.ObjectModel;
+﻿using Eoss.Backend.Configuration;
+using Eoss.Backend.Domain.RestService;
 using Eoss.Backend.Entities;
-using Mictlanix.DotNet.Onvif.Common;
-using Mictlanix.DotNet.Onvif.Device;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using System.Collections.ObjectModel;
 
 namespace Eoss.Backend.Domain.EasyDarwin
 {
     public class EasyDarwinRestService : RestServiceBase
     {
-        private const string UrlPrefix = @"http://192.168.1.40:10008/";
-
-        public EasyDarwinRestService(HttpClient httpClient) : base(httpClient)
+        private readonly string UrlPrefix;
+        
+        public EasyDarwinRestService(HttpClient httpClient, IWebHostEnvironment env) 
+            : base(httpClient)
         {
+            var _appConfiguration = AppConfigurations.Get(env.ContentRootPath, env.EnvironmentName, env.IsDevelopment());
+
+            UrlPrefix = _appConfiguration["EasyDarwin:Address"];
         }
 
         internal async Task<ObservableCollection<EasyDarwinPusher>> GetAllPushers()
