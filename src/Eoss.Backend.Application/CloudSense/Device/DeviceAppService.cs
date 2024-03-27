@@ -430,7 +430,7 @@ namespace Eoss.Backend.CloudSense
                 {
                     var videoSourceDto = new VideoSourceDto()
                     {
-                        Token = profile.VideoSourceToken,
+                        Token = profile.Token,
                         StreamUri = profile.StreamUri,
                         Username = credential.Username,
                         Password = credential.Password,
@@ -457,7 +457,9 @@ namespace Eoss.Backend.CloudSense
             string fullUri = videoSourceDto.StreamUri.Replace("rtsp://",
                 $"rtsp://{videoSourceDto.Username}:{videoSourceDto.Password}@");
 
-            var streamingId = await _easyDarwinManager.StartStreaming(fullUri, device.DeviceId,
+            string streamingPath = device.DeviceId + "-" + videoSourceDto.Token;
+
+            var streamingId = await _easyDarwinManager.StartStreaming(fullUri, streamingPath,
                 "TCP", 10, 1);
 
             var serverStreamingUri = await _easyDarwinManager.GetStreamingUri(streamingId);
