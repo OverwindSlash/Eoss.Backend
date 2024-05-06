@@ -22,7 +22,7 @@ namespace Eoss.Backend.Domain.Onvif
 
             var device = new Device()
             {
-                DeviceId = response.SerialNumber,
+                //DeviceId = response.SerialNumber,
                 Ipv4Address = host,
                 Model = response.Model,
                 Manufacturer = response.Manufacturer
