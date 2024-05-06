@@ -344,6 +344,7 @@ namespace Eoss.Backend.CloudSense
                 .Include(device => device.Profiles)
                 .ThenInclude(profile => profile.PtzParams)
                 .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+            
             if (device == null)
             {
                 throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
@@ -483,6 +484,20 @@ namespace Eoss.Backend.CloudSense
             {
                 throw new UserFriendlyException(e.Message);
             }
+        }
+
+        public async Task RemoveDeviceAsync(string deviceId)
+        {
+            await _deviceManager.RemoveCredentialAsync(deviceId);
+            await _deviceManager.RemoveInstallationParams(deviceId);
+
+            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+            foreach (var profile in device.Profiles)
+            {
+                await _deviceManager.RemoveProfileAsync(profile.Token);
+            }
+
+            await _deviceRepository.DeleteAsync(device => device.DeviceId == deviceId);
         }
 
         protected override async Task<Device> GetEntityByIdAsync(int id)

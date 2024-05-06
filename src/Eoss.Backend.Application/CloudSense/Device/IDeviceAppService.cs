@@ -31,5 +31,7 @@ namespace Eoss.Backend.CloudSense
         Task<VideoSourceDto> GetVideoSourcesAsync(string deviceId, string profileToken);
 
         Task<DeviceCoordinateDto> GetDeviceCoordinateAsync(string deviceId);
+
+        Task RemoveDeviceAsync(string deviceId);
     }
 }

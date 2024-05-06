@@ -14,6 +14,9 @@ namespace Eoss.Backend.EntityFrameworkCore
         public DbSet<Group> Groups { get; set; }
         public DbSet<Credential> Credentials { get; set; }
         public DbSet<InstallationParams> InstallationParams { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
+        public DbSet<PtzParams> PtzParams { get; set; }
+        
 
         public BackendDbContext(DbContextOptions<BackendDbContext> options)
             : base(options)

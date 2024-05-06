@@ -7,5 +7,10 @@ namespace Eoss.Backend.Domain.CloudSense
     {
         Task SetCredentialAsync(Credential credential);
         Task<Credential?> GetCredentialAsync(string deviceId);
+        Task RemoveCredentialAsync(string deviceId);
+
+        Task RemoveInstallationParams(string deviceId);
+
+        Task RemoveProfileAsync(string profileToken);
     }
 }
