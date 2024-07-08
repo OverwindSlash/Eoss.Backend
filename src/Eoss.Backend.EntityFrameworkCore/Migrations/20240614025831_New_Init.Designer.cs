@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Eoss.Backend.Migrations
 {
     [DbContext(typeof(BackendDbContext))]
-    [Migration("20240102075732_Init-Migration")]
-    partial class InitMigration
+    [Migration("20240614025831_New_Init")]
+    partial class New_Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1522,6 +1522,264 @@ namespace Eoss.Backend.Migrations
                     b.ToTable("AbpUsers");
                 });
 
+            modelBuilder.Entity("Eoss.Backend.Entities.Credential", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("Credentials");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Device", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Capabilities")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int?>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InstallationParamsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ipv4Address")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Manufacturer")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Types")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("InstallationParamsId");
+
+                    b.ToTable("Devices");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.InstallationParams", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<double>("Altitude")
+                        .HasColumnType("double");
+
+                    b.Property<float>("HomePanToEast")
+                        .HasColumnType("float");
+
+                    b.Property<float>("HomeTiltToHorizon")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double");
+
+                    b.Property<double>("Pitch")
+                        .HasColumnType("double");
+
+                    b.Property<double>("Roll")
+                        .HasColumnType("double");
+
+                    b.Property<double>("Yaw")
+                        .HasColumnType("double");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InstallationParams");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Profile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AudioBitrate")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AudioEncoding")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("AudioSampleRate")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AudioSourceToken")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("FrameRate")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int?>("PtzParamsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StreamUri")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("VideoEncoding")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("VideoHeight")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VideoSourceToken")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("VideoWidth")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("PtzParamsId");
+
+                    b.ToTable("Profiles");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.PtzParams", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<float>("FocalLength")
+                        .HasColumnType("float");
+
+                    b.Property<double>("HomePanToEast")
+                        .HasColumnType("double");
+
+                    b.Property<double>("HomeTiltToHorizon")
+                        .HasColumnType("double");
+
+                    b.Property<float>("MaxPanDegree")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MaxPanNormal")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MaxTiltDegree")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MaxTiltNormal")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MaxZoomLevel")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MaxZoomNormal")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MinPanDegree")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MinPanNormal")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MinTiltDegree")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MinTiltNormal")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MinZoomLevel")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MinZoomNormal")
+                        .HasColumnType("float");
+
+                    b.Property<float>("SensorHeight")
+                        .HasColumnType("float");
+
+                    b.Property<float>("SensorWidth")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PtzParams");
+                });
+
             modelBuilder.Entity("Eoss.Backend.MultiTenancy.Tenant", b =>
                 {
                     b.Property<int>("Id")
@@ -1802,6 +2060,45 @@ namespace Eoss.Backend.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
+            modelBuilder.Entity("Eoss.Backend.Entities.Credential", b =>
+                {
+                    b.HasOne("Eoss.Backend.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId");
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Device", b =>
+                {
+                    b.HasOne("Eoss.Backend.Entities.Group", "Group")
+                        .WithMany("Devices")
+                        .HasForeignKey("GroupId");
+
+                    b.HasOne("Eoss.Backend.Entities.InstallationParams", "InstallationParams")
+                        .WithMany()
+                        .HasForeignKey("InstallationParamsId");
+
+                    b.Navigation("Group");
+
+                    b.Navigation("InstallationParams");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Profile", b =>
+                {
+                    b.HasOne("Eoss.Backend.Entities.Device", "Device")
+                        .WithMany("Profiles")
+                        .HasForeignKey("DeviceId");
+
+                    b.HasOne("Eoss.Backend.Entities.PtzParams", "PtzParams")
+                        .WithMany()
+                        .HasForeignKey("PtzParamsId");
+
+                    b.Navigation("Device");
+
+                    b.Navigation("PtzParams");
+                });
+
             modelBuilder.Entity("Eoss.Backend.MultiTenancy.Tenant", b =>
                 {
                     b.HasOne("Eoss.Backend.Authorization.Users.User", "CreatorUser")
@@ -1898,6 +2195,16 @@ namespace Eoss.Backend.Migrations
                     b.Navigation("Settings");
 
                     b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Device", b =>
+                {
+                    b.Navigation("Profiles");
+                });
+
+            modelBuilder.Entity("Eoss.Backend.Entities.Group", b =>
+                {
+                    b.Navigation("Devices");
                 });
 #pragma warning restore 612, 618
         }
