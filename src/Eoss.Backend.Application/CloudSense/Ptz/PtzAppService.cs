@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -274,9 +275,10 @@ namespace Eoss.Backend.CloudSense
         {
             try
             {
+                var stopwatch = Stopwatch.StartNew();
                 var device = await GetDeviceByDeviceIdAsync(deviceId);
                 var credential = await GetCredentialByDeviceId(deviceId);
-
+                    
                 await _ptzManager.ContinuousMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
                     panSpeed, tiltSpeed, zoomSpeed);
             }

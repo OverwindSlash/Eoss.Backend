@@ -1,5 +1,5 @@
-﻿using Abp.Dependency;
-using Abp.Domain.Services;
+﻿using System.Diagnostics;
+using Abp.Dependency;
 using Eoss.Backend.Entities;
 using Mictlanix.DotNet.Onvif;
 using Mictlanix.DotNet.Onvif.Common;
@@ -7,16 +7,18 @@ using Mictlanix.DotNet.Onvif.Ptz;
 
 namespace Eoss.Backend.Domain.Onvif
 {
-    public class OnvifPtzManager : DomainService, IOnvifPtzManager, ISingletonDependency
+    public class OnvifPtzManager : IOnvifPtzManager, ISingletonDependency
     {
+        private Dictionary<string, PTZClient> _ptzClientsCache = new();
+        
         public async Task<List<PtzConfig>> GetConfigurationsAsync(string host, string username, string password)
         {
             return await DoGetPtzConfigAsync(host, username, password);
         }
 
-        private static async Task<List<PtzConfig>> DoGetPtzConfigAsync(string host, string username, string password)
+        private async Task<List<PtzConfig>> DoGetPtzConfigAsync(string host, string username, string password)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             var response = await ptzClient.GetConfigurationsAsync();
 
             List<PtzConfig> ptzConfigs = new();
@@ -88,27 +90,42 @@ namespace Eoss.Backend.Domain.Onvif
             return ptzConfigs;
         }
 
+        private async Task<PTZClient> GetPtzClientAsync(string host, string username, string password)
+        {
+            string key = $"{host},{username},{password}";
+            if (_ptzClientsCache.ContainsKey(key))
+            {
+                return _ptzClientsCache[key];
+            }
+            else
+            {
+                var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+                _ptzClientsCache.Add(key, ptzClient);
+                return ptzClient;
+            }
+        }
+
         public async Task<PtzStatus> GetStatusAsync(string host, string username, string password, string profileToken)
         {
             return await DoGetStatusAsync(host, username, password, profileToken);
         }
 
-        private static async Task<PtzStatus> DoGetStatusAsync(string host, string username, string password, string profileToken)
+        private async Task<PtzStatus> DoGetStatusAsync(string host, string username, string password, string profileToken)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             var response = await ptzClient.GetStatusAsync(profileToken);
 
             var ptzStatus = new PtzStatus()
             {
-                PanPosition = response.Position.PanTilt.x,
-                TiltPosition = response.Position.PanTilt.y,
-                ZoomPosition = response.Position.Zoom.x,
+                PanPosition = response.Position != null ? response.Position.PanTilt.x : 0,
+                TiltPosition = response.Position != null ? response.Position.PanTilt.y : 0,
+                ZoomPosition = response.Position != null ? response.Position.Zoom.x : 0,
 
-                PanTiltStatus = response.MoveStatus.PanTilt.ToString(),
-                ZoomStatus = response.MoveStatus.Zoom.ToString(),
+                PanTiltStatus = response.MoveStatus != null ? response.MoveStatus.PanTilt.ToString() : string.Empty,
+                ZoomStatus = response.MoveStatus != null ? response.MoveStatus.Zoom.ToString() : string.Empty,
 
-                PanTiltSpace = response.Position.PanTilt.space,
-                ZoomSpace = response.Position.Zoom.space,
+                PanTiltSpace = response.Position != null ? response.Position.PanTilt.space : string.Empty,
+                ZoomSpace = response.Position != null ? response.Position.Zoom.space : string.Empty,
 
                 UtcDateTime = response.UtcTime,
                 Error = response.Error
@@ -120,7 +137,7 @@ namespace Eoss.Backend.Domain.Onvif
         public async Task<PtzStatus> AbsoluteMoveAsync(string host, string username, string password, string profileToken, 
             float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.AbsoluteMoveAsync(profileToken, new PTZVector
             {
                 PanTilt = new Vector2D
@@ -187,7 +204,7 @@ namespace Eoss.Backend.Domain.Onvif
         public async Task<PtzStatus> RelativeMoveAsync(string host, string username, string password, string profileToken, 
             float pan, float tilt, float zoom, float panSpeed, float tiltSpeed, float zoomSpeed)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.RelativeMoveAsync(profileToken, new PTZVector
             {
                 PanTilt = new Vector2D
@@ -218,7 +235,7 @@ namespace Eoss.Backend.Domain.Onvif
         public async Task ContinuousMoveAsync(string host, string username, string password, string profileToken, 
             float panSpeed, float tiltSpeed, float zoomSpeed)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.ContinuousMoveAsync(profileToken, new PTZSpeed
             {
                 PanTilt = new Vector2D
@@ -236,7 +253,7 @@ namespace Eoss.Backend.Domain.Onvif
 
         public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.StopAsync(profileToken, stopPan, stopZoom);
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
@@ -244,7 +261,7 @@ namespace Eoss.Backend.Domain.Onvif
 
         public async Task<List<PtzPreset>> GetPresetsAsync(string host, string username, string password, string profileToken)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             var response = await ptzClient.GetPresetsAsync(profileToken);
 
             List<PtzPreset> presets = response.Preset.Select(preset => new PtzPreset()
@@ -264,7 +281,7 @@ namespace Eoss.Backend.Domain.Onvif
         public async Task<PtzStatus> GotoPresetAsync(string host, string username, string password, string profileToken, 
             string presetToken, float panSpeed, float tiltSpeed, float zoomSpeed)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.GotoPresetAsync(profileToken, presetToken, new PTZSpeed
             {
                 PanTilt = new Vector2D
@@ -284,7 +301,7 @@ namespace Eoss.Backend.Domain.Onvif
         public async Task<string> SetPresetAsync(string host, string username, string password, string profileToken, string presetToken,
             string presetName)
         {
-            var ptzClient = await OnvifClientFactory.CreatePTZClientAsync(host, username, password);
+            var ptzClient = await GetPtzClientAsync(host, username, password);
 
             var newPreset = await ptzClient.SetPresetAsync(new SetPresetRequest(profileToken, presetName, presetToken));
 

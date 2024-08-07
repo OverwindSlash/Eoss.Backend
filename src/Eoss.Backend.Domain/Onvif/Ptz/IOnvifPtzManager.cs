@@ -3,7 +3,7 @@ using Eoss.Backend.Entities;
 
 namespace Eoss.Backend.Domain.Onvif
 {
-    public interface IOnvifPtzManager : IDomainService
+    public interface IOnvifPtzManager /*: IDomainService*/
     {
         Task<List<PtzConfig>> GetConfigurationsAsync(string host, string username, string password);
 
