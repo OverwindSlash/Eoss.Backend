@@ -169,13 +169,13 @@ namespace Eoss.Backend.Domain.Onvif
         {
             try
             {
-                while (true)
+                //while (true)
                 {
                     var response = await ptzClient.GetStatusAsync(profileToken);
-                    if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
-                    {
-                        continue;
-                    }
+                    // if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
+                    // {
+                    //     continue;
+                    // }
 
                     var status = new PtzStatus()
                     {
@@ -235,7 +235,11 @@ namespace Eoss.Backend.Domain.Onvif
         public async Task ContinuousMoveAsync(string host, string username, string password, string profileToken, 
             float panSpeed, float tiltSpeed, float zoomSpeed)
         {
+            //var stopwatch = new Stopwatch();
             var ptzClient = await GetPtzClientAsync(host, username, password);
+            //Trace.WriteLine("***** Manager Phase1:" + stopwatch.ElapsedMilliseconds.ToString());
+            
+            //stopwatch.Restart();
             await ptzClient.ContinuousMoveAsync(profileToken, new PTZSpeed
             {
                 PanTilt = new Vector2D
@@ -249,6 +253,7 @@ namespace Eoss.Backend.Domain.Onvif
                 }
 
             }, null);
+            //Trace.WriteLine("***** Manager Phase2:" + stopwatch.ElapsedMilliseconds.ToString());
         }
 
         public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)

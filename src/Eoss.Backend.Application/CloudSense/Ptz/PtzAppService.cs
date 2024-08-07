@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Abp;
 
 namespace Eoss.Backend.CloudSense
 {
@@ -21,6 +22,10 @@ namespace Eoss.Backend.CloudSense
         private readonly IRepository<Device> _deviceRepository;
         private readonly IDeviceManager _deviceManager;
         private readonly IOnvifPtzManager _ptzManager;
+        
+        private static Dictionary<string, Device> _devicesCache = new();
+        private static Dictionary<string, Credential> _credentialsCache = new();
+        private static Dictionary<string, Device> _deviceWithProfilesCache = new();
 
         public PtzAppService(IRepository<Device> deviceRepository, 
             IDeviceManager deviceManager, IOnvifPtzManager ptzManager)
@@ -61,18 +66,27 @@ namespace Eoss.Backend.CloudSense
 
         private async Task<Device> GetDeviceWithProfilesByDeviceId(string deviceId)
         {
-            var device = await _deviceRepository.GetAll()
-                .Include(device => device.InstallationParams)
-                .Include(device => device.Profiles)
-                .ThenInclude(profile => profile.PtzParams)
-                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
-
-            if (device == null)
+            if (_deviceWithProfilesCache.ContainsKey(deviceId))
             {
-                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+                return _deviceWithProfilesCache[deviceId];
             }
+            else
+            {
+                var device = await _deviceRepository.GetAll()
+                    .Include(device => device.InstallationParams)
+                    .Include(device => device.Profiles)
+                    .ThenInclude(profile => profile.PtzParams)
+                    .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
 
-            return device;
+                if (device == null)
+                {
+                    throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+                }
+                
+                _deviceWithProfilesCache.Add(deviceId, device);
+
+                return device;
+            }
         }
 
         private Profile GetDeviceProfile(Device device, string profileToken)
@@ -124,24 +138,42 @@ namespace Eoss.Backend.CloudSense
 
         private async Task<Device> GetDeviceByDeviceIdAsync(string deviceId)
         {
-            var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
-            if (device == null)
+            if (_devicesCache.ContainsKey(deviceId))
             {
-                throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+                return _devicesCache[deviceId];
             }
+            else
+            {
+                var device = await _deviceRepository.FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+                if (device == null)
+                {
+                    throw new UserFriendlyException(L("DeviceIdNotExist", deviceId));
+                }
+                
+                _devicesCache.Add(deviceId, device);
 
-            return device;
+                return device;
+            }
         }
 
         private async Task<Credential> GetCredentialByDeviceId(string deviceId)
         {
-            var credential = await _deviceManager.GetCredentialAsync(deviceId);
-            if (credential == null)
+            if (_credentialsCache.ContainsKey(deviceId))
             {
-                throw new UserFriendlyException(L("DeviceCredentialNotSet", deviceId));
+                return _credentialsCache[deviceId];
             }
+            else
+            {
+                var credential = await _deviceManager.GetCredentialAsync(deviceId);
+                if (credential == null)
+                {
+                    throw new UserFriendlyException(L("DeviceCredentialNotSet", deviceId));
+                }
+                
+                _credentialsCache.Add(deviceId, credential);
 
-            return credential;
+                return credential;
+            }
         }
 
         public async Task<PtzStatusDto> AbsoluteMoveAsync(string deviceId, string profileToken, float pan, float tilt, float zoom, 
@@ -278,9 +310,12 @@ namespace Eoss.Backend.CloudSense
                 var stopwatch = Stopwatch.StartNew();
                 var device = await GetDeviceByDeviceIdAsync(deviceId);
                 var credential = await GetCredentialByDeviceId(deviceId);
-                    
+                Trace.WriteLine("***** App Phase1:" + stopwatch.ElapsedMilliseconds.ToString());
+                
+                stopwatch.Restart();
                 await _ptzManager.ContinuousMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
                     panSpeed, tiltSpeed, zoomSpeed);
+                Trace.WriteLine("***** App Phase2:" + stopwatch.ElapsedMilliseconds.ToString());
             }
             catch (Exception e)
             {
