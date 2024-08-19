@@ -465,6 +465,11 @@ namespace Eoss.Backend.CloudSense
 
             var serverStreamingUri = await _easyDarwinManager.GetStreamingUri(streamingId);
 
+            if (string.IsNullOrEmpty(serverStreamingUri))
+            {
+                serverStreamingUri = fullUri;
+            }
+
             return serverStreamingUri;
         }
 

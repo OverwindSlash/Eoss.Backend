@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Abp;
 
 namespace Eoss.Backend.CloudSense
 {
@@ -232,7 +231,8 @@ namespace Eoss.Backend.CloudSense
             }
             catch (Exception e)
             {
-                throw new UserFriendlyException(e.Message);
+                //throw new UserFriendlyException(e.Message);
+                return new PtzStatusInDegreeDto();
             }
         }
 

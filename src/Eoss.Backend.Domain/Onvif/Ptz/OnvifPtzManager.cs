@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Abp.Dependency;
+﻿using Abp.Dependency;
 using Eoss.Backend.Entities;
 using Mictlanix.DotNet.Onvif;
 using Mictlanix.DotNet.Onvif.Common;
@@ -10,6 +9,7 @@ namespace Eoss.Backend.Domain.Onvif
     public class OnvifPtzManager : IOnvifPtzManager, ISingletonDependency
     {
         private Dictionary<string, PTZClient> _ptzClientsCache = new();
+        private PTZStatus _lastPtzStatus;
         
         public async Task<List<PtzConfig>> GetConfigurationsAsync(string host, string username, string password)
         {
@@ -169,13 +169,18 @@ namespace Eoss.Backend.Domain.Onvif
         {
             try
             {
-                //while (true)
+                const int retryMaxTimes = 10;
+                int triedTime = 0;
+
+                while (triedTime <= retryMaxTimes)
                 {
                     var response = await ptzClient.GetStatusAsync(profileToken);
-                    // if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
-                    // {
-                    //     continue;
-                    // }
+                    if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
+                    {
+                        triedTime++;
+                        Thread.Sleep(100);
+                        continue;
+                    }
 
                     var status = new PtzStatus()
                     {
@@ -194,6 +199,8 @@ namespace Eoss.Backend.Domain.Onvif
 
                     return status;
                 }
+
+                return new PtzStatus();
             }
             catch (Exception e)
             {
