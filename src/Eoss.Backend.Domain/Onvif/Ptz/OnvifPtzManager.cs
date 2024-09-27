@@ -9,7 +9,8 @@ namespace Eoss.Backend.Domain.Onvif
     public class OnvifPtzManager : IOnvifPtzManager, ISingletonDependency
     {
         private Dictionary<string, PTZClient> _ptzClientsCache = new();
-        private PTZStatus _lastPtzStatus;
+        // private Dictionary<string, PtzStatus> _lastPtzStatus = new();
+        // private Dictionary<string, bool> _ptzStatusNeedUpdate = new();
         
         public async Task<List<PtzConfig>> GetConfigurationsAsync(string host, string username, string password)
         {
@@ -112,26 +113,61 @@ namespace Eoss.Backend.Domain.Onvif
 
         private async Task<PtzStatus> DoGetStatusAsync(string host, string username, string password, string profileToken)
         {
-            var ptzClient = await GetPtzClientAsync(host, username, password);
-            var response = await ptzClient.GetStatusAsync(profileToken);
-
-            var ptzStatus = new PtzStatus()
+            try
             {
-                PanPosition = response.Position != null ? response.Position.PanTilt.x : 0,
-                TiltPosition = response.Position != null ? response.Position.PanTilt.y : 0,
-                ZoomPosition = response.Position != null ? response.Position.Zoom.x : 0,
+                // if (_lastPtzStatus.ContainsKey(host) && 
+                //     _ptzStatusNeedUpdate.ContainsKey(host) && _ptzStatusNeedUpdate[host] != true)
+                // {
+                //     Console.WriteLine("******** Cache HIT ********");
+                //     return _lastPtzStatus[host];
+                // }
+                
+                Console.WriteLine("******** GetStatus ********");
+                var ptzClient = await GetPtzClientAsync(host, username, password);
+                var response = await ptzClient.GetStatusAsync(profileToken);
 
-                PanTiltStatus = response.MoveStatus != null ? response.MoveStatus.PanTilt.ToString() : string.Empty,
-                ZoomStatus = response.MoveStatus != null ? response.MoveStatus.Zoom.ToString() : string.Empty,
+                var ptzStatus = new PtzStatus()
+                {
+                    PanPosition = response.Position.PanTilt.x,
+                    TiltPosition = response.Position.PanTilt.y,
+                    ZoomPosition = response.Position.Zoom.x,
 
-                PanTiltSpace = response.Position != null ? response.Position.PanTilt.space : string.Empty,
-                ZoomSpace = response.Position != null ? response.Position.Zoom.space : string.Empty,
+                    PanTiltStatus = response.MoveStatus.PanTilt.ToString(),
+                    ZoomStatus = response.MoveStatus.Zoom.ToString(),
 
-                UtcDateTime = response.UtcTime,
-                Error = response.Error
-            };
+                    PanTiltSpace = response.Position.PanTilt.space,
+                    ZoomSpace = response.Position.Zoom.space,
 
-            return ptzStatus;
+                    UtcDateTime = response.UtcTime,
+                    Error = response.Error
+                };
+
+                // if (_lastPtzStatus.ContainsKey(host))
+                // {
+                //     var lastStatus = _lastPtzStatus[host];
+                //     if (Math.Abs(lastStatus.PanPosition - ptzStatus.PanPosition) > 0.1 ||
+                //         Math.Abs(lastStatus.TiltPosition - ptzStatus.TiltPosition) > 0.1 || 
+                //         Math.Abs(lastStatus.ZoomPosition - ptzStatus.ZoomPosition) > 0.1)
+                //     {
+                //         _ptzStatusNeedUpdate[host] = false;
+                //         return _lastPtzStatus[host];
+                //     }
+                // }
+
+                // _lastPtzStatus[host] = ptzStatus;
+                // _ptzStatusNeedUpdate[host] = false;
+
+                return ptzStatus;
+            }
+            catch (Exception e)
+            {
+                // if (_lastPtzStatus.ContainsKey(host))
+                // {
+                //     return _lastPtzStatus[host];
+                // }
+
+                return new PtzStatus();
+            }
         }
 
         public async Task<PtzStatus> AbsoluteMoveAsync(string host, string username, string password, string profileToken, 
@@ -162,6 +198,8 @@ namespace Eoss.Backend.Domain.Onvif
                 }
             });
 
+            // _ptzStatusNeedUpdate[host] = true;
+
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
 
@@ -169,38 +207,57 @@ namespace Eoss.Backend.Domain.Onvif
         {
             try
             {
-                const int retryMaxTimes = 10;
-                int triedTime = 0;
+                // const int retryMaxTimes = 3;
+                // int triedTime = 0;
 
-                while (triedTime <= retryMaxTimes)
+                // while (triedTime <= retryMaxTimes)
+                // {
+                //     var response = await ptzClient.GetStatusAsync(profileToken);
+                //     if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
+                //     {
+                //         triedTime++;
+                //         Thread.Sleep(30);
+                //         continue;
+                //     }
+                //
+                //     var status = new PtzStatus()
+                //     {
+                //         PanPosition = response.Position.PanTilt.x,
+                //         TiltPosition = response.Position.PanTilt.y,
+                //         ZoomPosition = response.Position.Zoom.x,
+                //         PanTiltStatus = response.MoveStatus.PanTilt.ToString(),
+                //         ZoomStatus = response.MoveStatus.Zoom.ToString(),
+                //
+                //         PanTiltSpace = response.Position.PanTilt.space,
+                //         ZoomSpace = response.Position.Zoom.space,
+                //
+                //         UtcDateTime = response.UtcTime,
+                //         Error = response.Error
+                //     };
+                //
+                //     return status;
+                // }
+                
+                // return new PtzStatus();
+                
+                var response = await ptzClient.GetStatusAsync(profileToken);
+
+                var status = new PtzStatus()
                 {
-                    var response = await ptzClient.GetStatusAsync(profileToken);
-                    if (response.MoveStatus.PanTilt != MoveStatus.IDLE || response.MoveStatus.Zoom != MoveStatus.IDLE)
-                    {
-                        triedTime++;
-                        Thread.Sleep(100);
-                        continue;
-                    }
+                    PanPosition = response.Position.PanTilt.x,
+                    TiltPosition = response.Position.PanTilt.y,
+                    ZoomPosition = response.Position.Zoom.x,
+                    PanTiltStatus = response.MoveStatus.PanTilt.ToString(),
+                    ZoomStatus = response.MoveStatus.Zoom.ToString(),
 
-                    var status = new PtzStatus()
-                    {
-                        PanPosition = response.Position.PanTilt.x,
-                        TiltPosition = response.Position.PanTilt.y,
-                        ZoomPosition = response.Position.Zoom.x,
-                        PanTiltStatus = response.MoveStatus.PanTilt.ToString(),
-                        ZoomStatus = response.MoveStatus.Zoom.ToString(),
+                    PanTiltSpace = response.Position.PanTilt.space,
+                    ZoomSpace = response.Position.Zoom.space,
 
-                        PanTiltSpace = response.Position.PanTilt.space,
-                        ZoomSpace = response.Position.Zoom.space,
+                    UtcDateTime = response.UtcTime,
+                    Error = response.Error
+                };
 
-                        UtcDateTime = response.UtcTime,
-                        Error = response.Error
-                    };
-
-                    return status;
-                }
-
-                return new PtzStatus();
+                return status;
             }
             catch (Exception e)
             {
@@ -235,6 +292,8 @@ namespace Eoss.Backend.Domain.Onvif
                     x = zoomSpeed
                 }
             });
+            
+            // _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
@@ -261,12 +320,16 @@ namespace Eoss.Backend.Domain.Onvif
 
             }, null);
             //Trace.WriteLine("***** Manager Phase2:" + stopwatch.ElapsedMilliseconds.ToString());
+            
+            // _ptzStatusNeedUpdate[host] = true;
         }
 
         public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
         {
             var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.StopAsync(profileToken, stopPan, stopZoom);
+            
+            // _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
@@ -306,6 +369,8 @@ namespace Eoss.Backend.Domain.Onvif
                     x = zoomSpeed
                 }
             });
+            
+            // _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }

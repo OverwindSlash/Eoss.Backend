@@ -25,6 +25,7 @@ namespace Eoss.Backend.CloudSense
         private static Dictionary<string, Device> _devicesCache = new();
         private static Dictionary<string, Credential> _credentialsCache = new();
         private static Dictionary<string, Device> _deviceWithProfilesCache = new();
+        private static Dictionary<string, PtzStatusInDegreeDto> _deviceLastStatus = new();
 
         public PtzAppService(IRepository<Device> deviceRepository, 
             IDeviceManager deviceManager, IOnvifPtzManager ptzManager)
@@ -42,6 +43,10 @@ namespace Eoss.Backend.CloudSense
             {
                 var device = await GetDeviceWithProfilesByDeviceId(deviceId);
                 var profile = GetDeviceProfile(device, profileToken);
+                
+                // var credential = await GetCredentialByDeviceId(deviceId);
+                // var ptzConfigs = await _ptzManager.GetConfigurationsAsync(
+                //     device.Ipv4Address, credential.Username, credential.Password);
 
                 profile.PtzParams.HomePanToEast = input.HomePanToEast;
                 profile.PtzParams.HomeTiltToHorizon = input.HomeTiltToHorizon;
@@ -55,6 +60,21 @@ namespace Eoss.Backend.CloudSense
                 profile.PtzParams.SensorWidth = input.SensorWidth;
                 profile.PtzParams.SensorHeight = input.SensorHeight;
 
+                // var ptzConfig = ptzConfigs[0];
+                // profile.PtzParams.MaxPanNormal = ptzConfig.PanMaxLimit;
+                // profile.PtzParams.MinPanNormal = ptzConfig.PanMinLimit;
+                // profile.PtzParams.MaxTiltNormal = ptzConfig.TiltMaxLimit;
+                // profile.PtzParams.MinTiltNormal = ptzConfig.TiltMinLimit;
+                // profile.PtzParams.MaxZoomNormal = ptzConfig.ZoomMaxLimit;
+                // profile.PtzParams.MinZoomNormal = ptzConfig.ZoomMinLimit;
+                
+                profile.PtzParams.MaxPanNormal = 1;
+                profile.PtzParams.MinPanNormal = -1;
+                profile.PtzParams.MaxTiltNormal = 1;
+                profile.PtzParams.MinTiltNormal = -1;
+                profile.PtzParams.MaxZoomNormal = 1;
+                profile.PtzParams.MinZoomNormal = 0;
+                
                 await _deviceRepository.UpdateAsync(device);
             }
             catch (Exception e)
@@ -226,13 +246,15 @@ namespace Eoss.Backend.CloudSense
                 ptzStatusInDegreeDto.Fov = ptzParams.CalculateFov(ptzStatusInDegreeDto.ZoomPosition);
                 ptzStatusInDegreeDto.Distance = ptzParams.CalculateMaxDistance(ptzStatusInDegreeDto.ZoomPosition);
                 ptzStatusInDegreeDto.Direction = device.InstallationParams.CalculateAzimuthToEast(ptzStatusInDegreeDto.PanPosition);
+                
+                _deviceLastStatus[deviceId] = ptzStatusInDegreeDto;
 
                 return ptzStatusInDegreeDto;
             }
             catch (Exception e)
             {
                 //throw new UserFriendlyException(e.Message);
-                return new PtzStatusInDegreeDto();
+                return _deviceLastStatus[deviceId];
             }
         }
 
@@ -307,15 +329,15 @@ namespace Eoss.Backend.CloudSense
         {
             try
             {
-                var stopwatch = Stopwatch.StartNew();
+                //var stopwatch = Stopwatch.StartNew();
                 var device = await GetDeviceByDeviceIdAsync(deviceId);
                 var credential = await GetCredentialByDeviceId(deviceId);
-                Trace.WriteLine("***** App Phase1:" + stopwatch.ElapsedMilliseconds.ToString());
+                //Trace.WriteLine("***** App Phase1:" + stopwatch.ElapsedMilliseconds.ToString());
                 
-                stopwatch.Restart();
+                //stopwatch.Restart();
                 await _ptzManager.ContinuousMoveAsync(device.Ipv4Address, credential.Username, credential.Password, profileToken,
                     panSpeed, tiltSpeed, zoomSpeed);
-                Trace.WriteLine("***** App Phase2:" + stopwatch.ElapsedMilliseconds.ToString());
+                //Trace.WriteLine("***** App Phase2:" + stopwatch.ElapsedMilliseconds.ToString());
             }
             catch (Exception e)
             {
