@@ -9,8 +9,8 @@ namespace Eoss.Backend.Domain.Onvif
     public class OnvifPtzManager : IOnvifPtzManager, ISingletonDependency
     {
         private Dictionary<string, PTZClient> _ptzClientsCache = new();
-        // private Dictionary<string, PtzStatus> _lastPtzStatus = new();
-        // private Dictionary<string, bool> _ptzStatusNeedUpdate = new();
+        private Dictionary<string, PtzStatus> _lastPtzStatus = new();
+        private Dictionary<string, bool> _ptzStatusNeedUpdate = new();
         
         public async Task<List<PtzConfig>> GetConfigurationsAsync(string host, string username, string password)
         {
@@ -115,14 +115,14 @@ namespace Eoss.Backend.Domain.Onvif
         {
             try
             {
-                // if (_lastPtzStatus.ContainsKey(host) && 
+                // if (_lastPtzStatus.ContainsKey(host) &&
                 //     _ptzStatusNeedUpdate.ContainsKey(host) && _ptzStatusNeedUpdate[host] != true)
                 // {
-                //     Console.WriteLine("******** Cache HIT ********");
+                //     Console.WriteLine($"******** Cache HIT {host} ********");
                 //     return _lastPtzStatus[host];
                 // }
-                
-                Console.WriteLine("******** GetStatus ********");
+
+                Console.WriteLine($"******** GetStatus {host} ********");
                 var ptzClient = await GetPtzClientAsync(host, username, password);
                 var response = await ptzClient.GetStatusAsync(profileToken);
 
@@ -142,31 +142,54 @@ namespace Eoss.Backend.Domain.Onvif
                     Error = response.Error
                 };
 
-                // if (_lastPtzStatus.ContainsKey(host))
-                // {
-                //     var lastStatus = _lastPtzStatus[host];
-                //     if (Math.Abs(lastStatus.PanPosition - ptzStatus.PanPosition) > 0.1 ||
-                //         Math.Abs(lastStatus.TiltPosition - ptzStatus.TiltPosition) > 0.1 || 
-                //         Math.Abs(lastStatus.ZoomPosition - ptzStatus.ZoomPosition) > 0.1)
-                //     {
-                //         _ptzStatusNeedUpdate[host] = false;
-                //         return _lastPtzStatus[host];
-                //     }
-                // }
+                //if (_lastPtzStatus.ContainsKey(host))
+                //{
+                //    var lastStatus = _lastPtzStatus[host];
+                //    if (Math.Abs(lastStatus.PanPosition - ptzStatus.PanPosition) > 0.1 ||
+                //        Math.Abs(lastStatus.TiltPosition - ptzStatus.TiltPosition) > 0.1 || 
+                //        Math.Abs(lastStatus.ZoomPosition - ptzStatus.ZoomPosition) > 0.1)
+                //    {
+                //        Console.WriteLine("******** TOO NEAR ********");
+                //        _ptzStatusNeedUpdate[host] = false;
+                //        return _lastPtzStatus[host];
+                //    }
+                //}
 
-                // _lastPtzStatus[host] = ptzStatus;
-                // _ptzStatusNeedUpdate[host] = false;
+                if (!_lastPtzStatus.ContainsKey(host))
+                {
+                    _lastPtzStatus.Add(host, ptzStatus);
+                }
+                else
+                {
+                    _lastPtzStatus[host] = ptzStatus;
+                }
+
+                if (!_ptzStatusNeedUpdate.ContainsKey(host))
+                {
+                    _ptzStatusNeedUpdate.Add(host, false);
+                }
+                else
+                {
+                    _ptzStatusNeedUpdate[host] = false;
+                }
 
                 return ptzStatus;
             }
             catch (Exception e)
             {
-                // if (_lastPtzStatus.ContainsKey(host))
-                // {
-                //     return _lastPtzStatus[host];
-                // }
+                if (!_lastPtzStatus.ContainsKey(host))
+                {
+                    _lastPtzStatus.Add(host, new PtzStatus());
+                    _ptzStatusNeedUpdate.Add(host, false);
+                    
+                }
+                else
+                {
+                    _lastPtzStatus[host] = new PtzStatus();
+                    _ptzStatusNeedUpdate[host] = false;
+                }
 
-                return new PtzStatus();
+                return _lastPtzStatus[host];
             }
         }
 
@@ -198,7 +221,7 @@ namespace Eoss.Backend.Domain.Onvif
                 }
             });
 
-            // _ptzStatusNeedUpdate[host] = true;
+            _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
@@ -293,7 +316,7 @@ namespace Eoss.Backend.Domain.Onvif
                 }
             });
             
-            // _ptzStatusNeedUpdate[host] = true;
+            _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
@@ -321,7 +344,7 @@ namespace Eoss.Backend.Domain.Onvif
             }, null);
             //Trace.WriteLine("***** Manager Phase2:" + stopwatch.ElapsedMilliseconds.ToString());
             
-            // _ptzStatusNeedUpdate[host] = true;
+            _ptzStatusNeedUpdate[host] = true;
         }
 
         public async Task<PtzStatus> StopAsync(string host, string username, string password, string profileToken, bool stopPan, bool stopZoom)
@@ -329,7 +352,7 @@ namespace Eoss.Backend.Domain.Onvif
             var ptzClient = await GetPtzClientAsync(host, username, password);
             await ptzClient.StopAsync(profileToken, stopPan, stopZoom);
             
-            // _ptzStatusNeedUpdate[host] = true;
+            _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
@@ -370,7 +393,7 @@ namespace Eoss.Backend.Domain.Onvif
                 }
             });
             
-            // _ptzStatusNeedUpdate[host] = true;
+            _ptzStatusNeedUpdate[host] = true;
 
             return await GetStoppedPositionAsync(profileToken, ptzClient);
         }
