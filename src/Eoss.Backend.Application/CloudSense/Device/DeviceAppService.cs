@@ -418,13 +418,13 @@ namespace Eoss.Backend.CloudSense
 
         public async Task<VideoSourceDto> GetVideoSourcesAsync(string deviceId, string profileToken)
         {
+            CheckGetPermission();
+
+            var device = await GetDeviceWithProfilesByDeviceId(deviceId);
+            var credential = await GetCredentialByDeviceId(deviceId);
+
             try
             {
-                CheckGetPermission();
-
-                var device = await GetDeviceWithProfilesByDeviceId(deviceId);
-                var credential = await GetCredentialByDeviceId(deviceId);
-
                 var profiles = await _mediaManager.GetProfilesAsync(device.Ipv4Address, credential.Username, credential.Password);
                 var profile = profiles.SingleOrDefault(p => p.Token == profileToken);
                 if (profile != null)
@@ -444,12 +444,54 @@ namespace Eoss.Backend.CloudSense
 
                     return videoSourceDto;
                 }
+                else
+                {
+                    var loadedDevice = await _deviceRepository.GetAll()
+                        .Include(device => device.Profiles)
+                        .ThenInclude(profile => profile.PtzParams)
+                        .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
 
-                return null;
+                    var loadedProfile = loadedDevice.Profiles.SingleOrDefault(p => p.Token == profileToken);
+
+                    var videoSourceDto = new VideoSourceDto()
+                    {
+                        Token = loadedProfile.Token,
+                        StreamUri = loadedProfile.StreamUri,
+                        Username = credential.Username,
+                        Password = credential.Password,
+                        VideoWidth = loadedProfile.VideoWidth,
+                        VideoHeight = loadedProfile.VideoHeight,
+                        Framerate = loadedProfile.FrameRate
+                    };
+
+                    videoSourceDto.ServerStreamUri = await GenerateServerStreamingUri(videoSourceDto, device);
+
+                    return videoSourceDto;
+                }
             }
             catch (Exception e)
             {
-                throw new UserFriendlyException(e.Message);
+                var loadedDevice = await _deviceRepository.GetAll()
+                    .Include(device => device.Profiles)
+                    .ThenInclude(profile => profile.PtzParams)
+                    .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+
+                var loadedProfile = loadedDevice.Profiles.SingleOrDefault(p => p.Token == profileToken);
+
+                var videoSourceDto = new VideoSourceDto()
+                {
+                    Token = loadedProfile.Token,
+                    StreamUri = loadedProfile.StreamUri,
+                    Username = credential.Username,
+                    Password = credential.Password,
+                    VideoWidth = loadedProfile.VideoWidth,
+                    VideoHeight = loadedProfile.VideoHeight,
+                    Framerate = loadedProfile.FrameRate
+                };
+
+                videoSourceDto.ServerStreamUri = await GenerateServerStreamingUri(videoSourceDto, device);
+
+                return videoSourceDto;
             }
         }
 
