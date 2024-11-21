@@ -10,5 +10,11 @@ namespace Eoss.Backend.CloudSense
         IAsyncCrudAppService<GroupGetDto, int, PagedResultRequestDto, GroupSaveDto, GroupSaveDto>
     {
         Task<List<DeviceUnderGroupDto>> GetAllDevicesInGroupAsync(EntityDto<int> group);
+
+        //根据分组Id字段串查询分组及分组设备信息列表
+        Task<List<GroupGetDto>> GetAllDevicesByGroupIdsAsync(EntityDto<string> group);
+
+        //查询分组信息列表
+        Task<List<GroupGetDto>> GetGroupInfoListAsync();
     }
 }

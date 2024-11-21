@@ -77,5 +77,43 @@ namespace Eoss.Backend.CloudSense
         {
             return CreateGroupWithDeviceDetailQueryable();
         }
+
+        public async Task<List<GroupGetDto>> GetAllDevicesByGroupIdsAsync(EntityDto<string> groupIds)
+        {
+            try
+            {
+                List<GroupGetDto> result = new List<GroupGetDto>();
+                if (groupIds == null || string.IsNullOrWhiteSpace(groupIds.Id))
+                    return result;
+                var groupList = _groupRepository.GetAll().AsNoTracking()
+                    .Where(t => groupIds.Id.Contains(t.Id.ToString()))
+                    .Include(group => group.Devices)
+                    .ThenInclude(device => device.Profiles)
+                    .ThenInclude(profile => profile.PtzParams)
+                    .ToList();
+                if (groupList.Any())
+                {
+                    result.AddRange(groupList.Select(t => ObjectMapper.Map<GroupGetDto>(t)));
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
+
+        public async Task<List<GroupGetDto>> GetGroupInfoListAsync()
+        {
+            try
+            {
+                return _groupRepository.GetAll().AsNoTracking().Select(t => ObjectMapper.Map<GroupGetDto>(t)).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.Message);
+            }
+        }
     }
 }
