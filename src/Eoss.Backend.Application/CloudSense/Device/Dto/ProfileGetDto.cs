@@ -8,6 +8,10 @@ namespace Eoss.Backend.CloudSense.Dto
     [AutoMapFrom(typeof(Profile))]
     public class ProfileGetDto
     {
+        [DisplayName("Profile id")]
+        [Required]
+        public int Id { get; set; }
+
         [DisplayName("Profile name")]
         [Required, StringLength(BackendConsts.MaxNameLength, MinimumLength = BackendConsts.MinNameLength)]
         public string Name { get; set; }
